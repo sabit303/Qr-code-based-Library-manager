@@ -1,0 +1,20 @@
+{
+  "name": "qr-code-based-library-manager-api",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/sabit303/Qr-code-based-Library-manager#readme",
+  "bugs": {
+    "url": "https://github.com/sabit303/Qr-code-based-Library-manager/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sabit303/Qr-code-based-Library-manager.git"
+  },
+  "license": "MIT",
+  "author": "arks",
+  "type": "module",
+  "main": "server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
