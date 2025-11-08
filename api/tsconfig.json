@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",                          // Modern JS output
+      "module": "NodeNext",                        // Node ESM compatibility
+      "moduleResolution": "NodeNext",
+      "lib": ["ESNext","DOM"],
+      "outDir": "./dist",                          // or whatever output folder you want
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "strict": true,                              // enable all strict type-checking
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "declaration": true,                         // emit .d.ts files
+      "sourceMap": true,                           // optional: useful for debugging
+      "resolveJsonModule": true,                   // allow importing JSON files
+      "types": ["node"],                           // node types
+      "allowImportingTsExtensions": false,          // if you plan to use explicit .ts imports
+      "noEmitOnError": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
+  }
