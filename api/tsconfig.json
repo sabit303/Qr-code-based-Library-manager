@@ -15,8 +15,9 @@
       "resolveJsonModule": true,                   // allow importing JSON files
       "types": ["node"],                           // node types
       "allowImportingTsExtensions": false,          // if you plan to use explicit .ts imports
-      "noEmitOnError": true
+      "noEmitOnError": true,
+      "strictPropertyInitialization": false
     },
-    "include": ["src"],
-    "exclude": ["node_modules", "dist"]
+    "include": ["src", "Controller/StudentController.ts"],
+    "exclude": ["../node_modules", "dist"]
   }
