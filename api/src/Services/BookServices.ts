@@ -1,7 +1,7 @@
 import { MySQLBookRepository } from "../Repositories/MySQLBookRepository.js";
 import { IBookRepository } from "../Repositories/IBookRepository.js";
 import { privateDecrypt } from "crypto";
-import { AddNewBookDTO } from "../DTOs/BookDto.js";
+import { AddNewBookDTO } from "../DTOs/BookDTO.js";
 import { promises } from "dns";
 import { Book } from "../Entities/Book.js";
 
