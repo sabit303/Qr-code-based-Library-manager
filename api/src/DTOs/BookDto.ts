@@ -1,9 +1,17 @@
-export interface AddNewBookDTO{
-    Id?: String;
-    Name: String;
-    AuthorName: String;
-    Edition?: String;
-    Genre?: String;
-    TotalCopies: Number;
-    AvailableCopies: Number
+export interface AddNewBookDTO {
+    Name: string;
+    AuthorName: string;
+    Edition?: string;
+    Genre?: string;
+    TotalCopies: number;
+    AvailableCopies?: number;
+}
+
+export interface UpdateBookDTO {
+    Name?: string;
+    AuthorName?: string;
+    Edition?: string;
+    Genre?: string;
+    TotalCopies?: number;
+    AvailableCopies?: number;
 }
