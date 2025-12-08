@@ -6,7 +6,8 @@ export class Transaction {
     borrowedDate: Date;
     dueDate: Date;
     returnDate?: Date;
-    status: 'ISSUED' | 'RETURNED' | 'OVERDUE';
+    CreatedAt?: Date;
+    status: 'ISSUED' | 'RETURNED' | 'OVERDUE' | 'REQUESTED';
     lateFee?: number;
 
     constructor(data: Partial<Transaction>) {
@@ -14,10 +15,11 @@ export class Transaction {
         this.studentReg = data.studentReg || "";
         this.bookId = data.bookId || "";
         this.librarianId = data.librarianId;
-        this.borrowedDate = data.borrowedDate || new Date();
-        this.dueDate = data.dueDate || new Date();
-        this.returnDate = data.returnDate;
-        this.status = data.status || 'ISSUED';
+        this.borrowedDate = data.borrowedDate ? new Date(data.borrowedDate) : new Date();
+        this.dueDate = data.dueDate ? new Date(data.dueDate) : new Date();
+        this.returnDate = data.returnDate ? new Date(data.returnDate) : undefined;
+        this.CreatedAt = data.CreatedAt ? new Date(data.CreatedAt) : new Date();
+        this.status = data.status || 'REQUESTED';
         this.lateFee = data.lateFee || 0;
     }
 } 

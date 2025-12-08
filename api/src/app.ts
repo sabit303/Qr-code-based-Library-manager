@@ -1,5 +1,6 @@
 import express, { Application } from "express";
 import studentRoutes from "./Routes/StudentRoutes.js";
+import borrowRoutes from "./Routes/BorrowRoutes.js";
 
 const app: Application = express();
 
@@ -8,7 +9,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/api", studentRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/borrow", borrowRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

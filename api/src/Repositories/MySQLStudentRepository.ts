@@ -71,8 +71,8 @@ export class MySQLStudentRepository implements IStudentRepository {
   }
 
   async findById(id: string): Promise<Student | null> {
-    const query = 'SELECT * FROM students WHERE id = ?';
-    const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
+    const query = 'SELECT * FROM students WHERE id = ? OR studentReg = ?';
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [id,id]);
     
     if (rows.length === 0) return null;
     

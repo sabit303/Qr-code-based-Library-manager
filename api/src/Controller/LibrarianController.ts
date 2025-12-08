@@ -8,7 +8,7 @@ export class LibrarianController {
     async addNewBook(req: Request, res: Response): Promise<Response> {
         try {
             const dto: AddNewBookDTO = req.body;
-            const newBook = await this.bookService.create(dto);
+            const newBook = await this.bookService.addNewBook(dto);
             return res.status(201).json({
                 success: true,
                 data: newBook,

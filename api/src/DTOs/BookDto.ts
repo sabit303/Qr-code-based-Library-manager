@@ -15,3 +15,8 @@ export interface UpdateBookDTO {
     TotalCopies?: number;
     AvailableCopies?: number;
 }
+
+export interface RequestNewBookDTO{
+    bookID: string,
+    StudentReg: string
+}

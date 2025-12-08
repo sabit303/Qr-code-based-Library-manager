@@ -2,24 +2,33 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../config/database.js";
 import { Book } from "../Entities/Book.js";
 import { IBookRepository } from "./IBookRepository.js";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
+export class MySQLBookRepository implements IBookRepository {
 
+    
+    private mapRowToBook(row: RowDataPacket): Book {
+        return new Book({
+            Id: row.Id,
+            Name: row.Name,
+            AuthorName: row.AuthorName,
+            Edition: row.Edition,
+            Genre: row.Genre,
+            TotalCopies: row.TotalCopies,
+            AvailableCopies: row.AvailableCopies,
+        });
+    }
 
-export class MySQLBookRepository implements IBookRepository{
+  
     async addNewBook(data: Partial<Book>): Promise<Book> {
         const id = uuidv4();
-        const book: Book ={
-            Id: id,
-            Name: data.Name || "",
-            AuthorName: data.AuthorName || "",
-            Edition: data.Edition || "",
-            Genre: data.Genre || "",
-            TotalCopies: data.TotalCopies || 0,
-            AvailableCopies: data.TotalCopies || 0
-        }
-         const query = 'Insert into Books (Id, Name, AuthorName, Edition, Genre, TotalCopies, AvailableCopies) values(?,?,?,?,?,?,?)'
-        await pool.execute(query,[
+
+        const query = `
+            INSERT INTO Books (Id, Name, AuthorName, Edition, Genre, TotalCopies, AvailableCopies)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        await pool.execute(query, [
             id,
             data.Name,
             data.AuthorName,
@@ -28,123 +37,122 @@ export class MySQLBookRepository implements IBookRepository{
             data.TotalCopies,
             data.AvailableCopies
         ]);
-        return book;
-        }
 
-    async removeBook(Id: String): Promise<boolean> {
-        const query = 'DELETE FROM Books WHERE Id = ?';
-        const [result] = await pool.execute<ResultSetHeader>(query, [Id]);
-        return result.affectedRows > 0;
-    }    
-
-    async displayBookInfo(id: string): Promise<Book | null> {
-        const query = 'SELECT * FROM Books WHERE Id = ?';
-        const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
-        
-        if (rows.length === 0) return null;
-
-        return new Book(rows[0] as Partial<Book>);
+        return new Book({
+            Id: id,
+            Name: data.Name!,
+            AuthorName: data.AuthorName!,
+            Edition: data.Edition!,
+            Genre: data.Genre!,
+            TotalCopies: data.TotalCopies!,
+            AvailableCopies: data.AvailableCopies!,
+        });
     }
 
-    async getAll(params: { page: number; limit: number; search?: string }): Promise<{ books: Book[]; total: number }> {
-        let query = 'SELECT * FROM Books';
-        let countQuery = 'SELECT COUNT(*) as total FROM Books';
-        const queryParams: any[] = [];
-        const countParams: any[] = [];
+    async removeBook(id: string): Promise<boolean> {
+        const query = `DELETE FROM Books WHERE Id = ?`;
+        const [result] = await pool.execute<ResultSetHeader>(query, [id]);
 
-        if (params.search) {
-            const searchCondition = ` WHERE Name LIKE ? OR AuthorName LIKE ? OR Genre LIKE ?`;
-            query += searchCondition;
-            countQuery += searchCondition;
-            const searchTerm = `%${params.search}%`;
-            queryParams.push(searchTerm, searchTerm, searchTerm);
-            countParams.push(searchTerm, searchTerm, searchTerm);
-        }
+        return result.affectedRows > 0;
+    }
 
-        // Get total count
-        const [countRows] = await pool.execute<RowDataPacket[]>(countQuery, countParams);
+    async displayBookInfo(id: string): Promise<Book | null> {
+        const [rows] = await pool.execute<RowDataPacket[]>(
+            "SELECT * FROM Books WHERE Id = ?", 
+            [id]
+        );
+
+        return rows.length ? this.mapRowToBook(rows[0]) : null;
+    }
+
+    async getAll(params: { page: number; limit: number; search?: string })
+    : Promise<{ books: Book[]; total: number }> 
+    {
+        const searchQuery = params.search
+            ? `WHERE Name LIKE ? OR AuthorName LIKE ? OR Genre LIKE ?`
+            : ``;
+
+        const searchValues = params.search
+            ? Array(3).fill(`%${params.search}%`)
+            : [];
+
+        // Count total
+        const [countRows] = await pool.execute<RowDataPacket[]>(
+            `SELECT COUNT(*) AS total FROM Books ${searchQuery}`,
+            searchValues
+        );
+
         const total = countRows[0].total;
-
-        // Add pagination
         const offset = (params.page - 1) * params.limit;
-        query += ` ORDER BY Name ASC LIMIT ? OFFSET ?`;
-        queryParams.push(params.limit, offset);
 
-        const [rows] = await pool.execute<RowDataPacket[]>(query, queryParams);
-        const books = rows.map(row => new Book(row as Partial<Book>));
+        // Fetch books
+        const [rows] = await pool.execute<RowDataPacket[]>(
+            `
+            SELECT * FROM Books 
+            ${searchQuery}
+            ORDER BY Name ASC 
+            LIMIT ? OFFSET ?
+            `,
+            [...searchValues, params.limit, offset]
+        );
+
+        const books = rows.map(r => this.mapRowToBook(r));
 
         return { books, total };
     }
 
     async getById(id: string): Promise<Book | null> {
-        const query = 'SELECT * FROM Books WHERE Id = ?';
-        const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
-        
-        if (rows.length === 0) return null;
-        
-        return new Book(rows[0] as Partial<Book>);
+        const [rows] = await pool.execute<RowDataPacket[]>(
+            "SELECT * FROM Books WHERE Id = ?", 
+            [id]
+        );
+
+        return rows.length ? this.mapRowToBook(rows[0]) : null;
     }
 
     async search(query: string): Promise<Book[]> {
-        const searchQuery = 'SELECT * FROM Books WHERE Name LIKE ? OR AuthorName LIKE ? OR Genre LIKE ? ORDER BY Name ASC';
-        const searchTerm = `%${query}%`;
-        const [rows] = await pool.execute<RowDataPacket[]>(searchQuery, [searchTerm, searchTerm, searchTerm]);
-        
-        return rows.map(row => new Book(row as Partial<Book>));
+        const q = `%${query}%`;
+
+        const [rows] = await pool.execute<RowDataPacket[]>(
+            `
+            SELECT * FROM Books
+            WHERE Name LIKE ? OR AuthorName LIKE ? OR Genre LIKE ?
+            ORDER BY Name ASC
+            `,
+            [q, q, q]
+        );
+
+        return rows.map(r => this.mapRowToBook(r));
     }
 
+    // ----------------------------------------
+    // QR CODE LOOKUP
+    // ----------------------------------------
     async getByQRCode(qrCode: string): Promise<Book | null> {
-        const query = 'SELECT * FROM Books WHERE qrCode = ?';
-        const [rows] = await pool.execute<RowDataPacket[]>(query, [qrCode]);
-        
-        if (rows.length === 0) return null;
-        
-        return new Book(rows[0] as Partial<Book>);
+        const [rows] = await pool.execute<RowDataPacket[]>(
+            "SELECT * FROM Books WHERE qrCode = ?",
+            [qrCode]
+        );
+
+        return rows.length ? this.mapRowToBook(rows[0]) : null;
     }
 
     async update(id: string, data: Partial<Book>): Promise<Book | null> {
-        const updates: string[] = [];
-        const values: any[] = [];
+        const fields = Object.keys(data);
+        if (fields.length === 0) return this.getById(id);
 
-        // Build dynamic update query
-        if (data.Name !== undefined) {
-            updates.push('Name = ?');
-            values.push(data.Name);
-        }
-        if (data.AuthorName !== undefined) {
-            updates.push('AuthorName = ?');
-            values.push(data.AuthorName);
-        }
-        if (data.Edition !== undefined) {
-            updates.push('Edition = ?');
-            values.push(data.Edition);
-        }
-        if (data.Genre !== undefined) {
-            updates.push('Genre = ?');
-            values.push(data.Genre);
-        }
-        if (data.TotalCopies !== undefined) {
-            updates.push('TotalCopies = ?');
-            values.push(data.TotalCopies);
-        }
-        if (data.AvailableCopies !== undefined) {
-            updates.push('AvailableCopies = ?');
-            values.push(data.AvailableCopies);
-        }
+        const updates = fields.map(field => `${field} = ?`).join(", ");
+        const values = fields.map(field => (data as any)[field]);
 
-        if (updates.length === 0) {
-            return this.getById(id);
-        }
+        const query = `UPDATE Books SET ${updates} WHERE Id = ?`;
 
-        values.push(id);
-        const query = `UPDATE Books SET ${updates.join(', ')} WHERE Id = ?`;
-        
-        const [result] = await pool.execute<ResultSetHeader>(query, values);
-        
+        const [result] = await pool.execute<ResultSetHeader>(query, [
+            ...values,
+            id
+        ]);
+
         if (result.affectedRows === 0) return null;
-        
+
         return this.getById(id);
     }
 }
-        
-        

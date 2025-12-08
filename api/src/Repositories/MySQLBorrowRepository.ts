@@ -8,25 +8,24 @@ import { connect } from "http2";
 
 
 export class MySQLTransactionRepository implements IBorrowRepository{
-    async BorrowANewBook(BookId: string,StudentReg: string): Promise<Partial<Transaction> | null> {
+    async RequestANewBook(BookId: string,StudentReg: string): Promise<Partial<Transaction> | null> {
         try{
             const [book] = await pool.execute<RowDataPacket[]>("Select * from Books where id = ?",[BookId]);
             if(book.length == 0){
                 return null;
             }else{
-                const updatedcopies = book[0].AvailableCopies - 1;
-                const [result] = await pool.execute<RowDataPacket[]>("update Books set AvailableCopies = ? where id = ?",[updatedcopies, BookId]);
-                const[transaction] = await pool.execute<ResultSetHeader>("insert into Transactions (BookId, StudentReg, BorrowDate) values (?, ?, NOW())", [BookId, StudentReg]);
+                const[transaction] = await pool.execute<ResultSetHeader>("insert into Transactions (BookId, StudentReg, CreatedAt) values (?, ?, NOW())", [BookId, StudentReg]);
                 const [insertedRow] = await pool.execute<RowDataPacket[]>(
-                    "SELECT * FROM Transactions WHERE id = ?", 
-                    [transaction.insertId]
+                    "SELECT * FROM Transactions WHERE studentReg = ? AND bookId = ?", 
+                    [StudentReg,BookId]
                 );
                 return {
                     id: insertedRow[0].id,
                     bookId: BookId,
                     studentReg: StudentReg,
-                    borrowDate: insertedRow[0].BorrowDate,
-                    dueDate: insertedRow[0].DueDate
+                    status: insertedRow[0].status,
+                    borrowDate: insertedRow[0].borrowedDate,
+                    dueDate: insertedRow[0].dueDate
                 }  as Partial<Transaction>;
             }
         }catch(error){
@@ -34,6 +33,32 @@ export class MySQLTransactionRepository implements IBorrowRepository{
             return null;
         }
     }
+
+    async ConfirmRequestForBook(BookId: string,StudentReg: string): Promise<Partial<Transaction>|null> {
+        try{
+            const [book] = await pool.execute<RowDataPacket[]>("Select * from Books where id = ?",[BookId]);
+            const updatedcopies = book[0].AvailableCopies - 1;
+                const [result] = await pool.execute<RowDataPacket[]>("update Books set AvailableCopies = ? where id = ?",[updatedcopies, BookId]);
+                const[transaction] = await pool.execute<ResultSetHeader>(`update Transactions set status ="ISSUED" , borrowedDate = NOW() where studentReg = ? AND bookId = ?`, [ StudentReg, BookId]);
+                 const [insertedRow] = await pool.execute<RowDataPacket[]>(
+                    "SELECT * FROM Transactions WHERE studentReg = ? AND bookId = ?", 
+                    [StudentReg,BookId]
+                );
+                return {
+                    id: insertedRow[0].id,
+                    bookId: BookId,
+                    studentReg: StudentReg,
+                    status: insertedRow[0].status,
+                    borrowDate: insertedRow[0].borrowedDate,
+                    dueDate: insertedRow[0].dueDate
+                }  as Partial<Transaction>;
+            
+        }catch(error){
+            console.log("Error database operation");
+            return null;
+        }
+    }
+
 
     async ReturnBorrowedBook(BookId: String, StudentReg: string): Promise<Partial<Transaction | null>> {
         try{
