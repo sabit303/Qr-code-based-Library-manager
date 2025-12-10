@@ -22,7 +22,7 @@ const borrowServiceInstance = new borrowService(transactionRepository, studentSe
 const borrowController = new BorrowController(borrowServiceInstance);
 
 router.post("/request", (req, res) => borrowController.requestNewBook(req, res));
-router.post("/confirm", (req, res) => borrowController.confirmBookRequest(req, res));
-router.post("/return", (req, res) => borrowController.returnBook(req, res));
+router.patch("/confirm", (req, res) => borrowController.confirmBookRequest(req, res));
+router.patch("/return", (req, res) => borrowController.returnBook(req, res));
 
 export default router;

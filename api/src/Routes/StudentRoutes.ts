@@ -22,4 +22,6 @@ router.delete("/students/:id", (req, res) => studentController.delete(req, res))
 router.post("/students/:id/qrcode", (req, res) => studentController.generateQRCode(req, res));
 router.get("/students/qrcode/:qrCode", (req, res) => studentController.getByQRCode(req, res));
 
+
+
 export default router;
