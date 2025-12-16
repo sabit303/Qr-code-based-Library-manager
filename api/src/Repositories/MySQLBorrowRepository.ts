@@ -10,13 +10,13 @@ import { connect } from "http2";
 export class MySQLTransactionRepository implements IBorrowRepository{
     async RequestANewBook(BookId: string,StudentReg: string): Promise<Partial<Transaction> | null> {
         try{
-            const [book] = await pool.execute<RowDataPacket[]>("Select * from Books where id = ?",[BookId]);
+            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?",[BookId]);
             if(book.length == 0){
                 return null;
             }else{
-                const[transaction] = await pool.execute<ResultSetHeader>("insert into Transactions (BookId, StudentReg, CreatedAt) values (?, ?, NOW())", [BookId, StudentReg]);
+                const[transaction] = await pool.execute<ResultSetHeader>("INSERT INTO transactions (bookId, studentReg, status, createdAt) VALUES (?, ?, 'REQUESTED', NOW())", [BookId, StudentReg]);
                 const [insertedRow] = await pool.execute<RowDataPacket[]>(
-                    "SELECT * FROM Transactions WHERE studentReg = ? AND bookId = ?", 
+                    "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ?", 
                     [StudentReg,BookId]
                 );
                 return {
@@ -36,12 +36,12 @@ export class MySQLTransactionRepository implements IBorrowRepository{
 
     async ConfirmRequestForBook(BookId: string,StudentReg: string): Promise<Partial<Transaction>|null> {
         try{
-            const [book] = await pool.execute<RowDataPacket[]>("Select * from Books where id = ?",[BookId]);
-            const updatedcopies = book[0].AvailableCopies - 1;
-                const [result] = await pool.execute<RowDataPacket[]>("update Books set AvailableCopies = ? where id = ?",[updatedcopies, BookId]);
-                const[transaction] = await pool.execute<ResultSetHeader>(`update Transactions set status ="ISSUED" , borrowedDate = NOW() where studentReg = ? AND bookId = ?`, [ StudentReg, BookId]);
-                 const [insertedRow] = await pool.execute<RowDataPacket[]>(
-                    "SELECT * FROM Transactions WHERE studentReg = ? AND bookId = ?", 
+            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?",[BookId]);
+            const updatedcopies = book[0].availableCopies - 1;
+                const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?",[updatedcopies, BookId]);
+                const[transaction] = await pool.execute<ResultSetHeader>(`UPDATE transactions SET status = 'ISSUED', borrowedDate = NOW() WHERE studentReg = ? AND bookId = ?`, [ StudentReg, BookId]);
+                const [insertedRow] = await pool.execute<RowDataPacket[]>(
+                    "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ?",
                     [StudentReg,BookId]
                 );
                 return {
@@ -62,13 +62,13 @@ export class MySQLTransactionRepository implements IBorrowRepository{
 
     async ReturnBorrowedBook(BookId: String, StudentReg: string): Promise<Partial<Transaction | null>> {
         try{
-            const [book] = await pool.execute<RowDataPacket[]>("Select * from Books where id = ?",[BookId]);
-            const updatedCopies = book[0].AvailableCopies + 1;
-            const [result] = await pool.execute<RowDataPacket[]>("update Books set AvailableCopies = ? where id = ?",[updatedCopies, BookId]);
+            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?",[BookId]);
+            const updatedCopies = book[0].availableCopies + 1;
+            const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?",[updatedCopies, BookId]);
              const connection = await pool.getConnection();
-            await connection.execute(`update Transaction set returnDate = NOW() ,status= "RETURNED" WHERE studentReg = ? and bookId = ?`,[StudentReg,BookId])
+            await connection.execute(`UPDATE transactions SET returnDate = NOW(), status = 'RETURNED' WHERE studentReg = ? AND bookId = ?`,[StudentReg,BookId])
             const [transaction] = await connection.execute<RowDataPacket[]>(
-                    `SELECT id,bookId,studentReg,status,returnDate FROM Transactions WHERE studentReg = ? and bookId = ?`, 
+                    `SELECT id, bookId, studentReg, status, returnDate FROM transactions WHERE studentReg = ? AND bookId = ?`, 
                     [StudentReg,BookId]
                 );
             return transaction as Partial<Transaction>;

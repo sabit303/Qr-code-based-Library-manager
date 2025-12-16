@@ -3,12 +3,14 @@ import studentRoutes from "./Routes/StudentRoutes.js";
 import borrowRoutes from "./Routes/BorrowRoutes.js";
 import bookRoutes from "./Routes/BookRoutes.js";
 import librarianRoutes from "./Routes/LibrarianRoutes.js";
+import { requestLogger } from "./middlewares/requestLogger.js";
 
 const app: Application = express();
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(requestLogger);
 
 // Routes
 app.use("/api/students", studentRoutes);

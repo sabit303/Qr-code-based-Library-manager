@@ -9,13 +9,13 @@ export class MySQLBookRepository implements IBookRepository {
     
     private mapRowToBook(row: RowDataPacket): Book {
         return new Book({
-            Id: row.Id,
-            Name: row.Name,
-            AuthorName: row.AuthorName,
-            Edition: row.Edition,
-            Genre: row.Genre,
-            TotalCopies: row.TotalCopies,
-            AvailableCopies: row.AvailableCopies,
+            Id: row.id,
+            Name: row.name,
+            AuthorName: row.authorName,
+            Edition: row.edition,
+            Genre: row.genre,
+            TotalCopies: row.totalCopies,
+            AvailableCopies: row.availableCopies,
         });
     }
 
@@ -24,7 +24,7 @@ export class MySQLBookRepository implements IBookRepository {
         const id = uuidv4();
 
         const query = `
-            INSERT INTO Books (Id, Name, AuthorName, Edition, Genre, TotalCopies, AvailableCopies)
+            INSERT INTO books (id, name, authorName, edition, genre, totalCopies, availableCopies)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
 
@@ -50,7 +50,7 @@ export class MySQLBookRepository implements IBookRepository {
     }
 
     async removeBook(id: string): Promise<boolean> {
-        const query = `DELETE FROM Books WHERE Id = ?`;
+        const query = `DELETE FROM books WHERE id = ?`;
         const [result] = await pool.execute<ResultSetHeader>(query, [id]);
 
         return result.affectedRows > 0;
@@ -58,7 +58,7 @@ export class MySQLBookRepository implements IBookRepository {
 
     async displayBookInfo(id: string): Promise<Book | null> {
         const [rows] = await pool.execute<RowDataPacket[]>(
-            "SELECT * FROM Books WHERE Id = ?", 
+            "SELECT * FROM books WHERE id = ?",
             [id]
         );
 
@@ -78,7 +78,7 @@ export class MySQLBookRepository implements IBookRepository {
 
         // Count total
         const [countRows] = await pool.execute<RowDataPacket[]>(
-            `SELECT COUNT(*) AS total FROM Books ${searchQuery}`,
+            `SELECT COUNT(*) AS total FROM books ${searchQuery}`,
             searchValues
         );
 
@@ -88,7 +88,7 @@ export class MySQLBookRepository implements IBookRepository {
         // Fetch books
         const [rows] = await pool.execute<RowDataPacket[]>(
             `
-            SELECT * FROM Books 
+            SELECT * FROM books 
             ${searchQuery}
             ORDER BY Name ASC 
             LIMIT ? OFFSET ?
@@ -103,7 +103,7 @@ export class MySQLBookRepository implements IBookRepository {
 
     async getById(id: string): Promise<Book | null> {
         const [rows] = await pool.execute<RowDataPacket[]>(
-            "SELECT * FROM Books WHERE Id = ?", 
+            "SELECT * FROM books WHERE id = ?", 
             [id]
         );
 
@@ -115,9 +115,9 @@ export class MySQLBookRepository implements IBookRepository {
 
         const [rows] = await pool.execute<RowDataPacket[]>(
             `
-            SELECT * FROM Books
-            WHERE Name LIKE ? OR AuthorName LIKE ? OR Genre LIKE ?
-            ORDER BY Name ASC
+            SELECT * FROM books
+            WHERE name LIKE ? OR authorName LIKE ? OR genre LIKE ?
+            ORDER BY name ASC
             `,
             [q, q, q]
         );
@@ -130,7 +130,7 @@ export class MySQLBookRepository implements IBookRepository {
     // ----------------------------------------
     async getByQRCode(qrCode: string): Promise<Book | null> {
         const [rows] = await pool.execute<RowDataPacket[]>(
-            "SELECT * FROM Books WHERE qrCode = ?",
+            "SELECT * FROM books WHERE qrCode = ?",
             [qrCode]
         );
 
@@ -144,7 +144,7 @@ export class MySQLBookRepository implements IBookRepository {
         const updates = fields.map(field => `${field} = ?`).join(", ");
         const values = fields.map(field => (data as any)[field]);
 
-        const query = `UPDATE Books SET ${updates} WHERE Id = ?`;
+        const query = `UPDATE books SET ${updates} WHERE id = ?`;
 
         const [result] = await pool.execute<ResultSetHeader>(query, [
             ...values,
