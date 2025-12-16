@@ -14,13 +14,13 @@ const studentService = new StudentService(studentRepository, qrCodeService);
 const studentController = new StudentController(studentService);
 
 // Routes
-router.post("/students", (req, res) => studentController.create(req, res));
-router.get("/students", (req, res) => studentController.getAll(req, res));
-router.get("/students/:id", (req, res) => studentController.getById(req, res));
-router.put("/students/:id", (req, res) => studentController.update(req, res));
-router.delete("/students/:id", (req, res) => studentController.delete(req, res));
-router.post("/students/:id/qrcode", (req, res) => studentController.generateQRCode(req, res));
-router.get("/students/qrcode/:qrCode", (req, res) => studentController.getByQRCode(req, res));
+router.post("/", (req, res) => studentController.create(req, res));
+router.get("/", (req, res) => studentController.getAll(req, res));
+router.get("/:id", (req, res) => studentController.getById(req, res));
+router.put("/:id", (req, res) => studentController.update(req, res));
+router.delete("/:id", (req, res) => studentController.delete(req, res));
+router.post("/:id/qrcode", (req, res) => studentController.generateQRCode(req, res));
+router.get("/qrcode/:qrCode", (req, res) => studentController.getByQRCode(req, res));
 
 
 
