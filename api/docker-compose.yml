@@ -35,8 +35,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./src:/app/src
-      - ./dist:/app/dist
+      - ./src:/app/src:cached
+      - /app/node_modules
 
 volumes:
   mysql_data:

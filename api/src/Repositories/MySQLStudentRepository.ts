@@ -71,12 +71,23 @@ export class MySQLStudentRepository implements IStudentRepository {
   }
 
   async findById(id: string): Promise<Student | null> {
-    const query = 'SELECT * FROM students WHERE id = ? OR studentReg = ?';
-    const [rows] = await pool.execute<RowDataPacket[]>(query, [id,id]);
+
+    try{const query = 'SELECT * FROM students WHERE Roll = ? OR Registration = ? OR id = ?';
+    console.log('🔍 findById called with:', id, 'Type:', typeof id);
+    const value = id.toString();
+    console.log(id);
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [value, value, value]);
+
+
+    console.log('📊 Query result rows:', rows.length);
     
     if (rows.length === 0) return null;
     
     return this.mapRowToStudent(rows[0]);
+    }catch(e){
+      console.log("db error: " + e);
+      return null
+    }
   }
 
   async findByQRCode(qrCode: string): Promise<Student | null> {
@@ -130,12 +141,12 @@ export class MySQLStudentRepository implements IStudentRepository {
       return this.findById(id);
     }
 
-    values.push(id);
-    const query = `UPDATE students SET ${updates.join(', ')} WHERE id = ?`;
+    values.push(id,id,id);
+    const query = `UPDATE students SET ${updates.join(', ')} WHERE id = ? or Roll = ? or Registration = ?`;
     
     const [result] = await pool.execute<ResultSetHeader>(query, values);
     
-    if (result.affectedRows === 0) return null;
+    if (result.affectedRows == 0) return null;
     
     return this.findById(id);
   }
