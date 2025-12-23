@@ -1,7 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../config/database.js";
 import { Book } from "../Entities/Book.js";
-import { IBookRepository } from "./IBookRepository.js";
+import { IBookRepository } from "../Interfaces/IBookRepository.js";
 import { v4 as uuidv4 } from "uuid";
 
 export class MySQLBookRepository implements IBookRepository {

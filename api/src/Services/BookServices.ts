@@ -1,4 +1,4 @@
-import { IBookRepository } from "../Repositories/IBookRepository.js";
+import { IBookRepository } from "../Interfaces/IBookRepository.js";
 import { AddNewBookDTO, UpdateBookDTO } from "../DTOs/BookDTO.js";
 import { Book } from "../Entities/Book.js";
 

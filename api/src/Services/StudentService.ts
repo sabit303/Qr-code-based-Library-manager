@@ -1,4 +1,4 @@
-import { IStudentRepository } from "../Repositories/IStudentRepository.js";
+import { IStudentRepository } from "../Interfaces/IStudentRepository.js";
 import { CreateStudentDTO, UpdateStudentDTO } from "../DTOs/StudentDTO.js";
 import { Student } from "../Entities/Student.js";
 import { QRCodeService } from "./QRCodeService.js";

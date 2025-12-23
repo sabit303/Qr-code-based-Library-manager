@@ -1,7 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../config/database.js";
 import { Book } from "../Entities/Book.js";
-import { IBorrowRepository } from "./IBorrowRepository.js";
+import { IBorrowRepository } from "../Interfaces/IBorrowRepository.js";
 import { error } from "console";
 import { Transaction } from "../Entities/Transaction.js";
 import { connect } from "http2";

@@ -1,4 +1,4 @@
-import { IStudentRepository } from "./IStudentRepository.js";
+import { IStudentRepository } from "../Interfaces/IStudentRepository.js";
 import { Student } from "../Entities/Student.js";
 import pool from "../config/database.js";
 import { RowDataPacket, ResultSetHeader } from "mysql2";
