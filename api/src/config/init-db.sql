@@ -13,13 +13,16 @@ CREATE TABLE IF NOT EXISTS students (
   Session VARCHAR(50) NOT NULL,
   ContactNumber VARCHAR(20),
   Address TEXT,
+  Email VARCHAR(255) NOT NULL UNIQUE,
+  Password VARCHAR(255) NOT NULL,
   qrCode VARCHAR(500) UNIQUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_roll (Roll),
   INDEX idx_registration (Registration),
   INDEX idx_qrcode (qrCode),
-  INDEX idx_department (Department)
+  INDEX idx_department (Department),
+  INDEX idx_email (Email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create books table

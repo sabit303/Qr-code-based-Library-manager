@@ -52,7 +52,7 @@ export class StudentController {
       if (!student) {
         return res.status(404).json({ 
           success: false,
-          message: "Couldn't Find the student with the id" 
+          message: "Student not found" 
         });
       }
 

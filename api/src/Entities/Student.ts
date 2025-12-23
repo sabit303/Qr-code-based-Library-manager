@@ -7,5 +7,7 @@ export class Student {
     Session: string;
     ContactNumber: string;
     Address: string;
+    Email: string;
+    Password: string;
     qrCode?: string;
 }

@@ -6,6 +6,8 @@ export interface CreateStudentDTO {
   Session: string;
   ContactNumber: string;
   Address: string;
+  Email: string;
+  Password: string;
 }
 
 export interface UpdateStudentDTO {
@@ -16,4 +18,6 @@ export interface UpdateStudentDTO {
   Session?: string;
   ContactNumber?: string;
   Address?: string;
+  Email?: string;
+  Password?: string;
 }

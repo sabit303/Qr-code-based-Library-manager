@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export class MySQLBookRepository implements IBookRepository {
 
-    
+
     private mapRowToBook(row: RowDataPacket): Book {
         return new Book({
             Id: row.id,
@@ -19,7 +19,7 @@ export class MySQLBookRepository implements IBookRepository {
         });
     }
 
-  
+
     async addNewBook(data: Partial<Book>): Promise<Book> {
         const id = uuidv4();
 
@@ -66,44 +66,57 @@ export class MySQLBookRepository implements IBookRepository {
     }
 
     async getAll(params: { page: number; limit: number; search?: string })
-    : Promise<{ books: Book[]; total: number }> 
-    {
-        const searchQuery = params.search
-            ? `WHERE Name LIKE ? OR AuthorName LIKE ? OR Genre LIKE ?`
-            : ``;
+        : Promise<{ books: Book[]; total: number }> {
+        try {
+            let countQuery = 'SELECT COUNT(*) AS total FROM books';
+            let selectQuery = 'SELECT * FROM books';
 
-        const searchValues = params.search
-            ? Array(3).fill(`%${params.search}%`)
-            : [];
+            const countParams: any[] = [];
+            const selectParams: any[] = [];
 
-        // Count total
-        const [countRows] = await pool.execute<RowDataPacket[]>(
-            `SELECT COUNT(*) AS total FROM books ${searchQuery}`,
-            searchValues
-        );
+            if (params.search) {
+                const searchCondition =
+                    ' WHERE name LIKE ? OR authorName LIKE ? OR genre LIKE ?';
 
-        const total = countRows[0].total;
-        const offset = (params.page - 1) * params.limit;
+                countQuery += searchCondition;
+                selectQuery += searchCondition;
 
-        // Fetch books
-        const [rows] = await pool.execute<RowDataPacket[]>(
-            `
-            SELECT * FROM books 
-            ${searchQuery}
-            ORDER BY Name ASC 
-            LIMIT ? OFFSET ?
-            `,
-            [...searchValues, params.limit, offset]
-        );
+                const searchTerm = `%${params.search}%`;
+                countParams.push(searchTerm, searchTerm, searchTerm);
+                selectParams.push(searchTerm, searchTerm, searchTerm);
+            }
 
-        const books = rows.map(r => this.mapRowToBook(r));
+            // Count
+            const [countRows] = await pool.execute<RowDataPacket[]>(countQuery, countParams);
+            const total = Number(countRows[0]?.total || countRows[0]?.['COUNT(*)'] || 0);
 
-        return { books, total };
+            // ✅ Force numbers
+            const page = Number(params.page);
+            const limit = Number(params.limit);
+
+            if (!Number.isInteger(page) || !Number.isInteger(limit)) {
+                throw new Error("Invalid pagination parameters");
+            }
+
+            const offset = (page - 1) * limit;
+
+            // Use string interpolation for LIMIT and OFFSET since MySQL prepared statements
+            // can be strict about these parameters. Safe because we validated they are integers.
+            selectQuery += ` ORDER BY name ASC LIMIT ${limit} OFFSET ${offset}`;
+
+            const [rows] = await pool.execute<RowDataPacket[]>(selectQuery, selectParams);
+            const books = rows.map(r => this.mapRowToBook(r));
+
+            return { books, total };
+        } catch (error) {
+            console.error('Error in MySQLBookRepository.getAll:', error);
+            throw error;
+        }
     }
 
     async getById(id: string): Promise<Book | null> {
         const [rows] = await pool.execute<RowDataPacket[]>(
-            "SELECT * FROM books WHERE id = ?", 
+            "SELECT * FROM books WHERE id = ?",
             [id]
         );
 
