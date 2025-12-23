@@ -2,18 +2,26 @@ import { IStudentRepository } from "../Repositories/IStudentRepository.js";
 import { CreateStudentDTO, UpdateStudentDTO } from "../DTOs/StudentDTO.js";
 import { Student } from "../Entities/Student.js";
 import { QRCodeService } from "./QRCodeService.js";
+import { PasswordHasher } from "../Helper/passHash.js";
 
 export class StudentService {
   constructor(
     private studentRepository: IStudentRepository,
-    private qrCodeService: QRCodeService
+    private qrCodeService: QRCodeService,
+    private passwordHasher: PasswordHasher
   ) {}
 
+  
   async create(dto: CreateStudentDTO): Promise<Student> {
     const qrCode = await this.qrCodeService.generate(dto.Registration);
-    return this.studentRepository.create({ ...dto, qrCode });
+    const hashedPassword = await this.passwordHasher.hashPassword(dto.Password);
+    
+    return this.studentRepository.create({ 
+      ...dto, 
+      Password: hashedPassword,
+      qrCode 
+    });
   }
-
   async getAll(params: { page: number; limit: number; search?: string }): Promise<{ students: Student[]; total: number; page: number; limit: number }> {
     const result = await this.studentRepository.findAll(params);
     return {
