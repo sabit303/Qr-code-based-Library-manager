@@ -24,7 +24,7 @@
   "dependencies": {
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
-    "bcrypt": "^6.0.0",
+
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "mysql2": "^3.15.3",

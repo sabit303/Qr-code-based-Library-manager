@@ -1,0 +1,411 @@
+{
+	"info": {
+		"name": "QR Code Library Manager API",
+		"description": "Complete API collection for QR Code-based Library Management System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": ["{{base_url}}"],
+					"path": ["health"]
+				}
+			}
+		},
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "Create Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"Name\": \"John Doe\",\n  \"Roll\": \"2023001\",\n  \"Registration\": \"REG-2023-001\",\n  \"Department\": \"Computer Science\",\n  \"Session\": \"2023-2024\",\n  \"ContactNumber\": \"01712345678\",\n  \"Address\": \"123 Main St, Dhaka\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/students",
+							"host": ["{{base_url}}"],
+							"path": ["api", "students"]
+						}
+					}
+				},
+				{
+					"name": "Get All Students",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/students?page=1&limit=10&search=",
+							"host": ["{{base_url}}"],
+							"path": ["api", "students"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Student by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/students/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "students", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Student",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"Name\": \"John Updated\",\n  \"ContactNumber\": \"01798765432\",\n  \"Address\": \"456 New Address\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/students/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "students", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Student",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/students/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "students", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Generate QR Code",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/students/:id/qrcode",
+							"host": ["{{base_url}}"],
+							"path": ["api", "students", ":id", "qrcode"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get by QR Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/students/qrcode/:qrCode",
+							"host": ["{{base_url}}"],
+							"path": ["api", "students", "qrcode", ":qrCode"],
+							"variable": [
+								{
+									"key": "qrCode",
+									"value": ""
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Books (Public)",
+			"item": [
+				{
+					"name": "Get All Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/books?page=1&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "books"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/books/search?query=",
+							"host": ["{{base_url}}"],
+							"path": ["api", "books", "search"],
+							"query": [
+								{
+									"key": "query",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Book by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/books/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "books", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Librarian (Admin)",
+			"item": [
+				{
+					"name": "Add New Book",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Clean Code\",\n  \"authorName\": \"Robert C. Martin\",\n  \"edition\": \"1st\",\n  \"genre\": \"Programming\",\n  \"totalCopies\": 5,\n  \"availableCopies\": 5\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/librarian/books",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian", "books"]
+						}
+					}
+				},
+				{
+					"name": "Update Book",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Clean Code Updated\",\n  \"totalCopies\": 10,\n  \"availableCopies\": 8\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/librarian/books/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian", "books", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Book",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/librarian/books/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian", "books", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Books (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/librarian/books",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian", "books"]
+						}
+					}
+				},
+				{
+					"name": "Get Book Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/librarian/books/details/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian", "books", "details", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Borrow/Return",
+			"item": [
+				{
+					"name": "Request Book",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"StudentReg\": \"REG-2023-001\",\n  \"bookID\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/borrow/request",
+							"host": ["{{base_url}}"],
+							"path": ["api", "borrow", "request"]
+						}
+					}
+				},
+				{
+					"name": "Confirm Book Request",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"StudentReg\": \"REG-2023-001\",\n  \"bookID\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/borrow/confirm",
+							"host": ["{{base_url}}"],
+							"path": ["api", "borrow", "confirm"]
+						}
+					}
+				},
+				{
+					"name": "Return Book",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"StudentReg\": \"REG-2023-001\",\n  \"bookID\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/borrow/return",
+							"host": ["{{base_url}}"],
+							"path": ["api", "borrow", "return"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "default"
+		}
+	]
+}
