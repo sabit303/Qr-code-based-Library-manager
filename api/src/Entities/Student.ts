@@ -8,6 +8,6 @@ export class Student {
     ContactNumber: string;
     Address: string;
     Email: string;
-    Password: string;
+    Password?: string;
     qrCode?: string;
 }

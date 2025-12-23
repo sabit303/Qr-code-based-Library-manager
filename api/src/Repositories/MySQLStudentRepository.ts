@@ -16,12 +16,14 @@ export class MySQLStudentRepository implements IStudentRepository {
       Session: data.Session || "",
       ContactNumber: data.ContactNumber || "",
       Address: data.Address || "",
+      Email: data.Email || "",
+      Password: data.Password || "",
       qrCode: data.qrCode
     };
 
     const query = `
-      INSERT INTO students (id, Name, Roll, Registration, Department, Session, ContactNumber, Address, qrCode)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO students (id, Name, Roll, Registration, Department, Session, ContactNumber, Address, Email, Password, qrCode)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await pool.execute(query, [
@@ -33,6 +35,8 @@ export class MySQLStudentRepository implements IStudentRepository {
       student.Session,
       student.ContactNumber,
       student.Address,
+      student.Email,
+      student.Password,
       student.qrCode || null
     ]);
 
@@ -132,6 +136,14 @@ export class MySQLStudentRepository implements IStudentRepository {
       updates.push('Address = ?');
       values.push(data.Address);
     }
+    if (data.Email !== undefined) {
+      updates.push('Email = ?');
+      values.push(data.Email);
+    }
+    if (data.Password !== undefined) {
+      updates.push('Password = ?');
+      values.push(data.Password);
+    }
     if (data.qrCode !== undefined) {
       updates.push('qrCode = ?');
       values.push(data.qrCode);
@@ -168,6 +180,7 @@ export class MySQLStudentRepository implements IStudentRepository {
       Session: row.Session,
       ContactNumber: row.ContactNumber,
       Address: row.Address,
+      Email: row.Email,
       qrCode: row.qrCode
     };
   }
