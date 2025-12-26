@@ -9,9 +9,10 @@ export class LibrarianController {
         try {
             const dto: CreateLibrarianDTO = req.body;
             const librarian = await this.librarianService.create(dto);
+            const { password, ...librarianWithoutPassword } = librarian;
             return res.status(201).json({
                 success: true,
-                data: librarian,
+                data: librarianWithoutPassword,
                 message: "Librarian created successfully"
             });
         } catch (error) {

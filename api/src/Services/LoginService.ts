@@ -34,7 +34,7 @@ export class loginServices{
             if(student != null && student.Password){
                 const isValid: boolean = await this.hashPass.verifyPassword(password, student.Password);
                 if(isValid){ 
-                    const jwtSecret = process.env.jwt_secret;
+                    const jwtSecret = process.env.JWT_SECRET;
                     if (!jwtSecret) {
                         throw new Error("JWT secret is not defined in environment variables");
                     }
@@ -69,10 +69,12 @@ export class loginServices{
     private async validateLibrarian(email: string, password: string): Promise<LoggedInDTO|null>{
         try{
             const librarian: Librarian|null = await this.librarianRepo.findByEmail(email);
+            console.log(librarian);
             if(librarian != null && librarian.password){
                 const isValid: boolean = await this.hashPass.verifyPassword(password, librarian.password);
                 if(isValid){ 
-                    const jwtSecret = process.env.jwt_secret;
+                    const jwtSecret = process.env.JWT_SECRET;
+                    console.log(jwtSecret);
                     if (!jwtSecret) {
                         throw new Error("JWT secret is not defined in environment variables");
                     }

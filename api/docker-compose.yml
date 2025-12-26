@@ -25,6 +25,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
@@ -32,6 +34,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: library_manager
       PORT: 3000
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "3000:3000"
     volumes:

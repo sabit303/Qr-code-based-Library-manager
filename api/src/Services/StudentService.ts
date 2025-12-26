@@ -13,13 +13,13 @@ export class StudentService {
 
   
   async create(dto: CreateStudentDTO): Promise<Student> {
-    const qrCode = await this.qrCodeService.generate(dto.Registration);
+    //const qrCode = await this.qrCodeService.generate(dto.Registration);
     const hashedPassword = await this.passwordHasher.hashPassword(dto.Password);
     
     return this.studentRepository.create({ 
       ...dto, 
       Password: hashedPassword,
-      qrCode 
+      //qrCode 
     });
   }
   async getAll(params: { page: number; limit: number; search?: string }): Promise<{ students: Student[]; total: number; page: number; limit: number }> {

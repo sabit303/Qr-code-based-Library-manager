@@ -8,10 +8,25 @@ export class StudentController {
   async create(req: Request, res: Response): Promise<Response> {
     try {
       const dto: CreateStudentDTO = req.body;
+      
+      // Validate required fields
+      const requiredFields = ['Name', 'Roll', 'Registration', 'Department', 'Session', 'ContactNumber', 'Address', 'Email', 'Password'];
+      const missingFields = requiredFields.filter(field => !dto[field as keyof CreateStudentDTO]);
+      
+      if (missingFields.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields",
+          error: `Required fields: ${missingFields.join(', ')}`
+        });
+      }
+      
       const student = await this.studentService.create(dto);
+      console.log(student);
+      const { Password, ...studentWithoutPassword } = student;
       return res.status(201).json({ 
         success: true,
-        data: student, 
+        data: studentWithoutPassword, 
         message: "Student created successfully" 
       });
     } catch (error) {

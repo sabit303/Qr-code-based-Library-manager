@@ -20,7 +20,7 @@ export class MySQLStudentRepository implements IStudentRepository {
       Password: data.Password || "",
       qrCode: data.qrCode
     };
-
+ console.log(student);
     const query = `
       INSERT INTO students (id, Name, Roll, Registration, Department, Session, ContactNumber, Address, Email, Password, qrCode)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
