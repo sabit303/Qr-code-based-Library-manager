@@ -8,6 +8,7 @@ import { MySQLStudentRepository } from "../Repositories/MySQLStudentRepository.j
 import { MySQLBookRepository } from "../Repositories/MySQLBookRepository.js";
 import { QRCodeService } from "../Services/QRCodeService.js";
 import { PasswordHasher } from "../Helper/passHash.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -23,8 +24,8 @@ const borrowServiceInstance = new borrowService(transactionRepository, studentSe
 
 const borrowController = new BorrowController(borrowServiceInstance);
 
-router.post("/request", (req, res) => borrowController.requestNewBook(req, res));
-router.patch("/confirm", (req, res) => borrowController.confirmBookRequest(req, res));
-router.patch("/return", (req, res) => borrowController.returnBook(req, res));
+router.post("/request", authMiddleware, (req, res) => borrowController.requestNewBook(req, res));
+router.patch("/confirm", authMiddleware, (req, res) => borrowController.confirmBookRequest(req, res));
+router.patch("/return", authMiddleware, (req, res) => borrowController.returnBook(req, res));
 
 export default router;

@@ -3,6 +3,7 @@ import { LibrarianController } from "../Controller/LibrarianController.js";
 import { LibrarianService } from "../Services/LibrarianService.js";
 import { MySQLLibrarianRepository } from "../Repositories/MySQLLibrarianRepository.js";
 import { PasswordHasher } from "../Helper/passHash.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -13,10 +14,10 @@ const librarianService = new LibrarianService(librarianRepository, passwordHashe
 const librarianController = new LibrarianController(librarianService);
 
 // Librarian Management Routes (Admin only)
-router.post("/", (req, res) => librarianController.create(req, res));
-router.get("/", (req, res) => librarianController.getAll(req, res));
-router.get("/:id", (req, res) => librarianController.getById(req, res));
-router.put("/:id", (req, res) => librarianController.update(req, res));
-router.delete("/:id", (req, res) => librarianController.delete(req, res));
+router.post("/", authMiddleware, (req, res) => librarianController.create(req, res));
+router.get("/", authMiddleware, (req, res) => librarianController.getAll(req, res));
+router.get("/:id", authMiddleware, (req, res) => librarianController.getById(req, res));
+router.put("/:id", authMiddleware, (req, res) => librarianController.update(req, res));
+router.delete("/:id", authMiddleware, (req, res) => librarianController.delete(req, res));
 
 export default router;
