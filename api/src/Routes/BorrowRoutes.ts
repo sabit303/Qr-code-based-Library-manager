@@ -7,6 +7,7 @@ import { BookServices } from "../Services/BookServices.js";
 import { MySQLStudentRepository } from "../Repositories/MySQLStudentRepository.js";
 import { MySQLBookRepository } from "../Repositories/MySQLBookRepository.js";
 import { QRCodeService } from "../Services/QRCodeService.js";
+import { PasswordHasher } from "../Helper/passHash.js";
 
 const router = Router();
 
@@ -14,8 +15,9 @@ const studentRepository = new MySQLStudentRepository();
 const bookRepository = new MySQLBookRepository();
 const transactionRepository = new MySQLTransactionRepository();
 const qrCodeService = new QRCodeService();
+const passwordHasher = new PasswordHasher();
 
-const studentService = new StudentService(studentRepository,qrCodeService);
+const studentService = new StudentService(studentRepository,qrCodeService,passwordHasher);
 const bookService = new BookServices(bookRepository);
 const borrowServiceInstance = new borrowService(transactionRepository, studentService, bookService);
 

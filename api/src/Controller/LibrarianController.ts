@@ -1,50 +1,23 @@
 import { Response, Request } from "express";
-import { BookServices } from "../Services/BookServices.js";
-import { AddNewBookDTO, UpdateBookDTO } from "../DTOs/BookDTO.js";
+import { LibrarianService } from "../Services/LibrarianService.js";
+import { CreateLibrarianDTO, UpdateLibrarianDTO } from "../DTOs/LibrarianDTO.js";
 
 export class LibrarianController {
-    constructor(private bookService: BookServices) {}
+    constructor(private librarianService: LibrarianService) {}
 
-    async addNewBook(req: Request, res: Response): Promise<Response> {
+    async create(req: Request, res: Response): Promise<Response> {
         try {
-            const dto: AddNewBookDTO = req.body;
-            const newBook = await this.bookService.addNewBook(dto);
+            const dto: CreateLibrarianDTO = req.body;
+            const librarian = await this.librarianService.create(dto);
             return res.status(201).json({
                 success: true,
-                data: newBook,
-                message: "Book created successfully"
+                data: librarian,
+                message: "Librarian created successfully"
             });
         } catch (error) {
             return res.status(500).json({
                 success: false,
-                message: "Error creating book",
-                error: error instanceof Error ? error.message : "Unknown error"
-            });
-        }
-    }
-
-    async updateBook(req: Request, res: Response): Promise<Response> {
-        try {
-            const { id } = req.params;
-            const dto: UpdateBookDTO = req.body;
-            const book = await this.bookService.update(id, dto);
-            
-            if (!book) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Book not found"
-                });
-            }
-
-            return res.status(200).json({
-                success: true,
-                data: book,
-                message: "Book updated successfully"
-            });
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: "Error updating book",
+                message: "Error creating librarian",
                 error: error instanceof Error ? error.message : "Unknown error"
             });
         }
@@ -53,7 +26,7 @@ export class LibrarianController {
     async getAll(req: Request, res: Response): Promise<Response> {
         try {
             const { page = 1, limit = 10, search } = req.query;
-            const result = await this.bookService.getAll({
+            const result = await this.librarianService.getAll({
                 page: Number(page),
                 limit: Number(limit),
                 search: search as string
@@ -65,130 +38,86 @@ export class LibrarianController {
         } catch (error) {
             return res.status(500).json({
                 success: false,
-                message: "Error fetching books",
+                message: "Error fetching librarians",
                 error: error instanceof Error ? error.message : "Unknown error"
             });
         }
     }
 
-    
     async getById(req: Request, res: Response): Promise<Response> {
         try {
             const { id } = req.params;
-            const book = await this.bookService.getById(id);
+            const librarian = await this.librarianService.getById(id);
             
-            if (!book) {
+            if (!librarian) {
                 return res.status(404).json({
                     success: false,
-                    message: "Book not found"
+                    message: "Librarian not found"
                 });
             }
 
             return res.status(200).json({
                 success: true,
-                data: book
+                data: librarian
             });
         } catch (error) {
             return res.status(500).json({
                 success: false,
-                message: "Error fetching book",
+                message: "Error fetching librarian",
                 error: error instanceof Error ? error.message : "Unknown error"
             });
         }
     }
 
-    
-    async search(req: Request, res: Response): Promise<Response> {
-        try {
-            const { q } = req.query;
-            const books = await this.bookService.search(q as string);
-            return res.status(200).json({
-                success: true,
-                data: books
-            });
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: "Error searching books",
-                error: error instanceof Error ? error.message : "Unknown error"
-            });
-        }
-    }
-
-    
-    async getByQRCode(req: Request, res: Response): Promise<Response> {
-        try {
-            const { qrCode } = req.params;
-            const book = await this.bookService.getByQRCode(qrCode);
-            
-            if (!book) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Book not found"
-                });
-            }
-
-            return res.status(200).json({
-                success: true,
-                data: book
-            });
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: "Error fetching book",
-                error: error instanceof Error ? error.message : "Unknown error"
-            });
-        }
-    }
-
-    async removeBook(req:Request , res:Response): Promise<Response>{
+    async update(req: Request, res: Response): Promise<Response> {
         try {
             const { id } = req.params;
-            const deleted = await this.bookService.removeBook(id);
+            const dto: UpdateLibrarianDTO = req.body;
+            const librarian = await this.librarianService.update(id, dto);
+            
+            if (!librarian) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Librarian not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: librarian,
+                message: "Librarian updated successfully"
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: "Error updating librarian",
+                error: error instanceof Error ? error.message : "Unknown error"
+            });
+        }
+    }
+
+    async delete(req: Request, res: Response): Promise<Response> {
+        try {
+            const { id } = req.params;
+            const deleted = await this.librarianService.delete(id);
             
             if (!deleted) {
                 return res.status(404).json({
                     success: false,
-                    message: "Book not found"
+                    message: "Librarian not found"
                 });
             }
 
             return res.status(200).json({
                 success: true,
-                message: "Book deleted successfully"
+                message: "Librarian deleted successfully"
             });
         } catch (error) {
-            return res.status(500).json({ 
+            return res.status(500).json({
                 success: false,
-                message: "Error deleting book", 
-                error: error instanceof Error ? error.message : "Unknown error" 
+                message: "Error deleting librarian",
+                error: error instanceof Error ? error.message : "Unknown error"
             });
         }
-    }
-
-
-    async displayBookDetails(req: Request,res: Response): Promise<Response>{
-        try {
-            const { id } = req.params;
-            const book = await this.bookService.displayBookDetails(id);
-            
-            if (!book) {
-                return res.status(404).json({ 
-                    success: false,
-                    message: "Book not found" 
-                });
-            }
-
-            return res.status(200).json({
-                success: true,
-                data: book
-            });
-        } catch (error) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Error fetching book details", 
-                error: error instanceof Error ? error.message : "Unknown error" 
-            });
-        }   
     }
 }

@@ -1,25 +1,22 @@
 import { Router } from "express";
 import { LibrarianController } from "../Controller/LibrarianController.js";
-import { BookServices } from "../Services/BookServices.js";
-import { MySQLBookRepository } from "../Repositories/MySQLBookRepository.js";
+import { LibrarianService } from "../Services/LibrarianService.js";
+import { MySQLLibrarianRepository } from "../Repositories/MySQLLibrarianRepository.js";
+import { PasswordHasher } from "../Helper/passHash.js";
 
 const router = Router();
 
 // Dependency Injection
-const bookRepository = new MySQLBookRepository();
-const bookService = new BookServices(bookRepository);
-const librarianController = new LibrarianController(bookService);
+const librarianRepository = new MySQLLibrarianRepository();
+const passwordHasher = new PasswordHasher();
+const librarianService = new LibrarianService(librarianRepository, passwordHasher);
+const librarianController = new LibrarianController(librarianService);
 
-// Librarian Book Management Routes (Admin only)
-router.post("/books", (req, res) => librarianController.addNewBook(req, res));
-router.put("/books/:id", (req, res) => librarianController.updateBook(req, res));
-router.delete("/books/:id", (req, res) => librarianController.removeBook(req, res));
-
-// Librarian View Routes
-router.get("/books", (req, res) => librarianController.getAll(req, res));
-router.get("/books/:id", (req, res) => librarianController.getById(req, res));
-router.get("/books/details/:id", (req, res) => librarianController.displayBookDetails(req, res));
-
-
+// Librarian Management Routes (Admin only)
+router.post("/", (req, res) => librarianController.create(req, res));
+router.get("/", (req, res) => librarianController.getAll(req, res));
+router.get("/:id", (req, res) => librarianController.getById(req, res));
+router.put("/:id", (req, res) => librarianController.update(req, res));
+router.delete("/:id", (req, res) => librarianController.delete(req, res));
 
 export default router;
