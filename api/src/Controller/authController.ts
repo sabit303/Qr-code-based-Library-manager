@@ -10,18 +10,19 @@ export class authController{
 
         constructor(private LoginService: loginServices){}
 
-    async  login(req:Request,res: Response):Promise<Response> {
+    async login(req: Request, res: Response): Promise<Response> {
         const dto: loginDTO = req.body;
-        const result = this.LoginService.validateStudent(dto.email, dto.password);
+        const userType = req.body.role || 'student'; // Default to student if not specified
+        
+        const result = await this.LoginService.login(dto.email, dto.password, userType);
 
-        if(result!=null){
+        if(result != null){
             return res.status(200).json(result);
         }
            
-            return res.status(404).json({
-                msg: "User Not Exist"
-            })
-        
+        return res.status(404).json({
+            msg: "User Not Found"
+        })
     }
 
 }

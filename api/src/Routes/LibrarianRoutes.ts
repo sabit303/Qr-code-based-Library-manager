@@ -14,7 +14,7 @@ const librarianService = new LibrarianService(librarianRepository, passwordHashe
 const librarianController = new LibrarianController(librarianService);
 
 // Librarian Management Routes (Admin only)
-router.post("/", authMiddleware, (req, res) => librarianController.create(req, res));
+router.post("/", (req, res) => librarianController.create(req, res));
 router.get("/", authMiddleware, (req, res) => librarianController.getAll(req, res));
 router.get("/:id", authMiddleware, (req, res) => librarianController.getById(req, res));
 router.put("/:id", authMiddleware, (req, res) => librarianController.update(req, res));
