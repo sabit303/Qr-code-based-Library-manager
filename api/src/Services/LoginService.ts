@@ -30,8 +30,10 @@ export class loginServices{
 
     private async validateStudent(id: string, password: string): Promise<LoggedInDTO|null>{
         try{
-            const student: Student|null = await this.studentRepo.findById(id);
-            if(student != null && student.Password){
+            const student: Student|null = await this.studentRepo.findById(id, true);
+            console.log(student);
+            if(student != null && student.Password ){
+                console.log("ok");
                 const isValid: boolean = await this.hashPass.verifyPassword(password, student.Password);
                 if(isValid){ 
                     const jwtSecret = process.env.JWT_SECRET;

@@ -74,20 +74,20 @@ export class MySQLStudentRepository implements IStudentRepository {
     return { students, total };
   }
 
-  async findById(id: string): Promise<Student | null> {
+  async findById(id: string, includePassword: boolean = false): Promise<Student | null> {
 
-    try{const query = 'SELECT * FROM students WHERE Roll = ? OR Registration = ? OR id = ?';
+    try{const query = 'SELECT * FROM students WHERE Roll = ? OR Registration = ? OR id = ? OR Email = ?';
     console.log('🔍 findById called with:', id, 'Type:', typeof id);
     const value = id.toString();
     console.log(id);
-    const [rows] = await pool.execute<RowDataPacket[]>(query, [value, value, value]);
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [value, value, value, value]);
 
 
     console.log('📊 Query result rows:', rows.length);
     
     if (rows.length === 0) return null;
     
-    return this.mapRowToStudent(rows[0]);
+    return this.mapRowToStudent(rows[0], includePassword);
     }catch(e){
       console.log("db error: " + e);
       return null
@@ -170,8 +170,8 @@ export class MySQLStudentRepository implements IStudentRepository {
     return result.affectedRows > 0;
   }
 
-  private mapRowToStudent(row: RowDataPacket): Student {
-    return {
+  private mapRowToStudent(row: RowDataPacket, includePassword: boolean = false): Student {
+    const student: any = {
       id: row.id,
       Name: row.Name,
       Roll: row.Roll,
@@ -183,5 +183,11 @@ export class MySQLStudentRepository implements IStudentRepository {
       Email: row.Email,
       qrCode: row.qrCode
     };
+    
+    if (includePassword) {
+      student.Password = row.Password;
+    }
+    
+    return student as Student;
   }
 }
