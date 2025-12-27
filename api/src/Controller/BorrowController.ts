@@ -9,7 +9,7 @@ export class BorrowController {
         try {
             const dto: RequestNewBookDTO = req.body;
             const transaction = await this.borrowService.requestNewBook(dto);
-            
+            console.log(transaction);
             if (!transaction) {
                 return res.status(400).json({
                     success: false,

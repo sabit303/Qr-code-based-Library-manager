@@ -16,13 +16,16 @@ export class borrowService{
 
         async requestNewBook(dto: RequestNewBookDTO): Promise<Partial<Transaction>|null>{
             try{
-              if(!this.studentservice.getById(dto.StudentReg) && !this.bookservice.getById(dto.bookID)){
+              if(this.studentservice.getById(dto.StudentReg) != null && !this.bookservice.getById(dto.bookID) != null){
+                
                     const transactionDetails = this.transactionRepo.RequestANewBook(dto.bookID,dto.StudentReg);
+                    console.log(transactionDetails);
                     return transactionDetails;
               }else{
                 throw new Error("Book or Student not exist");
               }
             }catch(e){
+                console.log(e);
                 return null;
             }
         }
