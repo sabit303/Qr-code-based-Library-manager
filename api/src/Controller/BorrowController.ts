@@ -1,6 +1,7 @@
 import { RequestNewBookDTO } from "../DTOs/BookDTO.js";
 import { Request, Response } from "express";
 import { borrowService } from "../Services/BorrowServices.js";
+import { Transaction } from "../Entities/Transaction.js";
 
 export class BorrowController {
     constructor(private borrowService: borrowService) {}
@@ -52,6 +53,32 @@ export class BorrowController {
             return res.status(500).json({
                 success: false,
                 message: "Error confirming book request",
+                error: error instanceof Error ? error.message : "Unknown error"
+            });
+        }
+    }
+
+    async GetTransactions(req: Request, res:Response): Promise<Response>{
+        try{
+            const {status} = req.query;
+            const transactions: Transaction[] | null = await this.borrowService.GetAllTransactionsByStatus(status as string);
+            console.log(transactions);
+            if(!transactions){
+                return res.status(400).json({
+                    msg: "Invalid status",
+                    date: new Date().toISOString()
+                })
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: transactions,
+                date: new Date().toISOString()
+            })
+        }catch(error){
+             return res.status(500).json({
+                success: false,
+                message: "Error Getting transactions data",
                 error: error instanceof Error ? error.message : "Unknown error"
             });
         }

@@ -26,6 +26,7 @@ const borrowController = new BorrowController(borrowServiceInstance);
 
 router.post("/request", authMiddleware, (req, res) => borrowController.requestNewBook(req, res));
 router.patch("/confirm", authMiddleware, (req, res) => borrowController.confirmBookRequest(req, res));
+router.get("/transactions", authMiddleware, (req, res) => borrowController.GetTransactions(req, res));
 router.patch("/return", authMiddleware, (req, res) => borrowController.returnBook(req, res));
 
 export default router;

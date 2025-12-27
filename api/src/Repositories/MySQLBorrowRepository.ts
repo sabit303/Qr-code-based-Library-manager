@@ -44,6 +44,7 @@ export class MySQLTransactionRepository implements IBorrowRepository{
                     "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ?",
                     [StudentReg,BookId]
                 );
+                console.log(insertedRow[0]);
                 return {
                     id: insertedRow[0].id,
                     bookId: BookId,
@@ -59,6 +60,25 @@ export class MySQLTransactionRepository implements IBorrowRepository{
         }
     }
 
+
+   async GetAllTransactionsByStatus(status: string): Promise<Transaction[]>{
+               try{
+                    const query = `SELECT * from transactions where status = ?`;
+                    const [rows] = await pool.execute<RowDataPacket[]>(query,[status]);
+                    
+                    return rows.map(row => ({
+                         id: row.id,
+                         bookId: row.bookId,
+                         studentReg: row.studentReg,
+                         status: row.status,
+                         borrowedDate: row.borrowedDate,
+                         dueDate: row.dueDate
+                    })) as Transaction[];
+               }catch(error){
+                    console.log(error);
+                    return [];
+               }
+         }
 
     async ReturnBorrowedBook(BookId: String, StudentReg: string): Promise<Partial<Transaction | null>> {
         try{

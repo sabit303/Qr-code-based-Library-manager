@@ -29,23 +29,35 @@ export class borrowService{
                 return null;
             }
         }
-
+      
         async confirmBookRequest(dto: RequestNewBookDTO): Promise<Partial<Transaction>|null>{
             try{
-              if(!this.studentservice.getById(dto.StudentReg) && !this.bookservice.getById(dto.bookID)){
+              if(this.studentservice.getById(dto.StudentReg) !=null && this.bookservice.getById(dto.bookID) !=null){
                     const transactionDetails = this.transactionRepo.ConfirmRequestForBook(dto.bookID,dto.StudentReg);
                     return transactionDetails;
               }else{
                 throw new Error("Book or Student not exist");
               }
             }catch(e){
+              console.log(e);
                 return null;
             }  
         }
-
+       async GetAllTransactionsByStatus(status:string): Promise<Transaction []|null>{
+            try{
+              if (status === 'ISSUED' || status === 'RETURNED' || status === 'OVERDUE' || status === 'REQUESTED') {
+                const transactions: Transaction[] = await this.transactionRepo.GetAllTransactionsByStatus(status);
+                return transactions;
+              }
+              throw new Error("Status not valid");
+            } catch(e) {
+              console.log(e);
+              return null;
+            }
+       } 
         async returnBook(dto: RequestNewBookDTO): Promise<Partial<Transaction>|null>{
            try{
-              if(!this.studentservice.getById(dto.StudentReg) && !this.bookservice.getById(dto.bookID)){
+              if(this.studentservice.getById(dto.StudentReg) != null && this.bookservice.getById(dto.bookID) != null){
                     const transactionDetails = this.transactionRepo.ReturnBorrowedBook(dto.bookID,dto.StudentReg);
                     return transactionDetails;
               }else{
