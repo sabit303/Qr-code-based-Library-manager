@@ -140,3 +140,4 @@ vite.config.ts.timestamp-*
 
 # Postman collections
 *.postman_collection.json
+Library-Manager.postman_collection.json

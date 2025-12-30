@@ -45,7 +45,7 @@ export class loginServices{
                         name: student.Name,
                         registration: student.Registration,
                         roll: student.Roll,
-                        userType: 'student'
+                        role: 'student'
                     }, jwtSecret, {expiresIn: "1h"});
             
                     return {
@@ -84,7 +84,7 @@ export class loginServices{
                         id: librarian.id,
                         name: librarian.name,
                         email: librarian.email,
-                        userType: 'librarian'
+                        role: 'librarian'
                     }, jwtSecret, {expiresIn: "1h"});
             
                     return {

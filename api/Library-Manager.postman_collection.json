@@ -18,10 +18,26 @@
 			}
 		},
 		{
-			"name": "Students",
+			"name": "Authentication",
 			"item": [
 				{
-					"name": "Create Student",
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.token) {",
+									"        pm.environment.set('auth_token', response.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -32,18 +48,66 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"Name\": \"John Doe\",\n  \"Roll\": \"2023001\",\n  \"Registration\": \"REG-2023-001\",\n  \"Department\": \"Computer Science\",\n  \"Session\": \"2023-2024\",\n  \"ContactNumber\": \"01712345678\",\n  \"Address\": \"123 Main St, Dhaka\"\n}"
+							"raw": "{\n  \"email\": \"librarian@library.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Login as a librarian or student. Returns a JWT token that should be used for authenticated requests."
+					}
+				}
+			]
+		},
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "Create Student",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"Name\": \"John Doe\",\n  \"Roll\": \"2023001\",\n  \"Registration\": \"REG-2023-001\",\n  \"Department\": \"Computer Science\",\n  \"Session\": \"2023-2024\",\n  \"ContactNumber\": \"01712345678\",\n  \"Address\": \"123 Main St, Dhaka\",\n  \"email\": \"john.doe@student.edu\",\n  \"password\": \"student123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/students",
 							"host": ["{{base_url}}"],
 							"path": ["api", "students"]
-						}
+						},
+						"description": "Create a new student. Requires authentication."
 					}
 				},
 				{
 					"name": "Get All Students",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -64,12 +128,23 @@
 									"value": ""
 								}
 							]
-						}
+						},
+						"description": "Get all students with pagination and search. Requires authentication."
 					}
 				},
 				{
 					"name": "Get Student by ID",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -82,12 +157,23 @@
 									"value": ""
 								}
 							]
-						}
+						},
+						"description": "Get a specific student by ID. Requires authentication."
 					}
 				},
 				{
 					"name": "Update Student",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [
 							{
@@ -109,12 +195,23 @@
 									"value": ""
 								}
 							]
-						}
+						},
+						"description": "Update student information. Requires authentication."
 					}
 				},
 				{
 					"name": "Delete Student",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
 						"header": [],
 						"url": {
@@ -127,12 +224,23 @@
 									"value": ""
 								}
 							]
-						}
+						},
+						"description": "Delete a student. Requires authentication."
 					}
 				},
 				{
 					"name": "Generate QR Code",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"url": {
@@ -145,12 +253,23 @@
 									"value": ""
 								}
 							]
-						}
+						},
+						"description": "Generate QR code for a student. Requires authentication."
 					}
 				},
 				{
 					"name": "Get by QR Code",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -163,17 +282,230 @@
 									"value": ""
 								}
 							]
-						}
+						},
+						"description": "Get student by QR code. Requires authentication."
 					}
 				}
 			]
 		},
 		{
-			"name": "Books (Public)",
+			"name": "Librarians",
 			"item": [
+				{
+					"name": "Create Librarian",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane.smith@library.com\",\n  \"password\": \"librarian123\",\n  \"contact\": \"01798765432\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/librarian",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian"]
+						},
+						"description": "Create a new librarian. Requires authentication."
+					}
+				},
+				{
+					"name": "Get All Librarians",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/librarian?page=1&limit=10&search=",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								}
+							]
+						},
+						"description": "Get all librarians with pagination and search. Requires authentication."
+					}
+				},
+				{
+					"name": "Get Librarian by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/librarian/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						},
+						"description": "Get a specific librarian by ID. Requires authentication."
+					}
+				},
+				{
+					"name": "Update Librarian",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jane Smith Updated\",\n  \"contact\": \"01712345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/librarian/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						},
+						"description": "Update librarian information. Requires authentication."
+					}
+				},
+				{
+					"name": "Delete Librarian",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/librarian/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "librarian", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						},
+						"description": "Delete a librarian. Requires authentication."
+					}
+				}
+			]
+		},
+		{
+			"name": "Books",
+			"item": [
+				{
+					"name": "Create Book",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Clean Code\",\n  \"authorName\": \"Robert C. Martin\",\n  \"edition\": \"1st\",\n  \"genre\": \"Programming\",\n  \"totalCopies\": 5,\n  \"availableCopies\": 5\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/books",
+							"host": ["{{base_url}}"],
+							"path": ["api", "books"]
+						},
+						"description": "Add a new book to the library. Requires authentication."
+					}
+				},
 				{
 					"name": "Get All Books",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -190,12 +522,23 @@
 									"value": "10"
 								}
 							]
-						}
+						},
+						"description": "Get all books with pagination. Requires authentication."
 					}
 				},
 				{
 					"name": "Search Books",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -208,12 +551,23 @@
 									"value": ""
 								}
 							]
-						}
+						},
+						"description": "Search books by name, author, or genre. Requires authentication."
 					}
 				},
 				{
 					"name": "Get Book by ID",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -226,38 +580,81 @@
 									"value": ""
 								}
 							]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Librarian (Admin)",
-			"item": [
-				{
-					"name": "Add New Book",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Clean Code\",\n  \"authorName\": \"Robert C. Martin\",\n  \"edition\": \"1st\",\n  \"genre\": \"Programming\",\n  \"totalCopies\": 5,\n  \"availableCopies\": 5\n}"
 						},
+						"description": "Get a specific book by ID. Requires authentication."
+					}
+				},
+				{
+					"name": "Get Book Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/librarian/books",
+							"raw": "{{base_url}}/api/books/details/:id",
 							"host": ["{{base_url}}"],
-							"path": ["api", "librarian", "books"]
-						}
+							"path": ["api", "books", "details", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						},
+						"description": "Get detailed book information. Requires authentication."
+					}
+				},
+				{
+					"name": "Get Book by QR Code",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/books/qr/:qrCode",
+							"host": ["{{base_url}}"],
+							"path": ["api", "books", "qr", ":qrCode"],
+							"variable": [
+								{
+									"key": "qrCode",
+									"value": ""
+								}
+							]
+						},
+						"description": "Get book by QR code. Requires authentication."
 					}
 				},
 				{
 					"name": "Update Book",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [
 							{
@@ -270,64 +667,46 @@
 							"raw": "{\n  \"name\": \"Clean Code Updated\",\n  \"totalCopies\": 10,\n  \"availableCopies\": 8\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/librarian/books/:id",
+							"raw": "{{base_url}}/api/books/:id",
 							"host": ["{{base_url}}"],
-							"path": ["api", "librarian", "books", ":id"],
+							"path": ["api", "books", ":id"],
 							"variable": [
 								{
 									"key": "id",
 									"value": ""
 								}
 							]
-						}
+						},
+						"description": "Update book information. Requires authentication."
 					}
 				},
 				{
 					"name": "Delete Book",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/librarian/books/:id",
+							"raw": "{{base_url}}/api/books/:id",
 							"host": ["{{base_url}}"],
-							"path": ["api", "librarian", "books", ":id"],
+							"path": ["api", "books", ":id"],
 							"variable": [
 								{
 									"key": "id",
 									"value": ""
 								}
 							]
-						}
-					}
-				},
-				{
-					"name": "Get All Books (Admin)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/librarian/books",
-							"host": ["{{base_url}}"],
-							"path": ["api", "librarian", "books"]
-						}
-					}
-				},
-				{
-					"name": "Get Book Details",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/librarian/books/details/:id",
-							"host": ["{{base_url}}"],
-							"path": ["api", "librarian", "books", "details", ":id"],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
+						},
+						"description": "Delete a book. Requires authentication."
 					}
 				}
 			]
@@ -338,6 +717,16 @@
 				{
 					"name": "Request Book",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -353,12 +742,23 @@
 							"raw": "{{base_url}}/api/borrow/request",
 							"host": ["{{base_url}}"],
 							"path": ["api", "borrow", "request"]
-						}
+						},
+						"description": "Request a book for borrowing. Requires authentication."
 					}
 				},
 				{
 					"name": "Confirm Book Request",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PATCH",
 						"header": [
 							{
@@ -374,12 +774,23 @@
 							"raw": "{{base_url}}/api/borrow/confirm",
 							"host": ["{{base_url}}"],
 							"path": ["api", "borrow", "confirm"]
-						}
+						},
+						"description": "Confirm a book borrow request. Requires authentication."
 					}
 				},
 				{
 					"name": "Return Book",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PATCH",
 						"header": [
 							{
@@ -395,7 +806,8 @@
 							"raw": "{{base_url}}/api/borrow/return",
 							"host": ["{{base_url}}"],
 							"path": ["api", "borrow", "return"]
-						}
+						},
+						"description": "Return a borrowed book. Requires authentication."
 					}
 				}
 			]
@@ -405,6 +817,11 @@
 		{
 			"key": "base_url",
 			"value": "http://localhost:3000",
+			"type": "default"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
 			"type": "default"
 		}
 	]
