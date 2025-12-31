@@ -14,15 +14,15 @@ const bookController = new BookController(bookService);
 const roleAuthorizer = new AuthorizeRole();
 
 // Book Management Routes
-router.post("/", authMiddleware,  roleAuthorizer.canAccess("librarian"), (req, res) => bookController.addNewBook(req, res));
-router.put("/:id", authMiddleware, (req, res) => bookController.updateBook(req, res));
-router.delete("/:id", authMiddleware, (req, res) => bookController.removeBook(req, res));
+router.post("/", authMiddleware, roleAuthorizer.canAccess("librarian"), (req, res) => bookController.addNewBook(req, res));
+router.put("/:id", authMiddleware, roleAuthorizer.canAccess("librarian"), (req, res) => bookController.updateBook(req, res));
+router.delete("/:id", authMiddleware, roleAuthorizer.canAccess("librarian"), (req, res) => bookController.removeBook(req, res));
 
 // Book View Routes
-router.get("/", authMiddleware, (req, res) => bookController.getAll(req, res));
-router.get("/search", authMiddleware, (req, res) => bookController.search(req, res));
-router.get("/qr/:qrCode", authMiddleware, (req, res) => bookController.getByQRCode(req, res));
-router.get("/details/:id", authMiddleware, (req, res) => bookController.displayBookDetails(req, res));
-router.get("/:id", authMiddleware, (req, res) => bookController.getById(req, res));
+router.get("/", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res) => bookController.getAll(req, res));
+router.get("/search", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res) => bookController.search(req, res));
+router.get("/qr/:qrCode", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res) => bookController.getByQRCode(req, res));
+router.get("/details/:id", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res) => bookController.displayBookDetails(req, res));
+router.get("/:id", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res) => bookController.getById(req, res));
 
 export default router;

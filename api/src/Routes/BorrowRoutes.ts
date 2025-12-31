@@ -9,6 +9,7 @@ import { MySQLBookRepository } from "../Repositories/MySQLBookRepository.js";
 import { QRCodeService } from "../Services/QRCodeService.js";
 import { PasswordHasher } from "../Helper/passHash.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { AuthorizeRole } from "../middlewares/authorizeRoleMiddleware.js";
 
 const router = Router();
 
@@ -23,10 +24,11 @@ const bookService = new BookServices(bookRepository);
 const borrowServiceInstance = new borrowService(transactionRepository, studentService, bookService);
 
 const borrowController = new BorrowController(borrowServiceInstance);
+const roleAuthorizer = new AuthorizeRole();
 
-router.post("/request", authMiddleware, (req, res) => borrowController.requestNewBook(req, res));
-router.patch("/confirm", authMiddleware, (req, res) => borrowController.confirmBookRequest(req, res));
-router.get("/transactions", authMiddleware, (req, res) => borrowController.GetTransactions(req, res));
-router.patch("/return", authMiddleware, (req, res) => borrowController.returnBook(req, res));
+router.post("/request", authMiddleware, roleAuthorizer.canAccess("student"), (req, res) => borrowController.requestNewBook(req, res));
+router.patch("/confirm", authMiddleware, roleAuthorizer.canAccess("librarian"), (req, res) => borrowController.confirmBookRequest(req, res));
+router.get("/transactions", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res) => borrowController.GetTransactions(req, res));
+router.patch("/return", authMiddleware, roleAuthorizer.canAccess("librarian"), (req, res) => borrowController.returnBook(req, res));
 
 export default router;
