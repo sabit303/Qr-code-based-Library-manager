@@ -28,7 +28,8 @@ const roleAuthorizer = new AuthorizeRole();
 
 router.post("/request", authMiddleware, roleAuthorizer.canAccess("student","librarian"), (req, res) => borrowController.requestNewBook(req, res));
 router.patch("/confirm", authMiddleware, roleAuthorizer.canAccess("librarian"), (req, res) => borrowController.confirmBookRequest(req, res));
-router.get("/transactions", authMiddleware, roleAuthorizer.canAccess("librarian"), (req, res) => borrowController.GetTransactions(req, res));
+router.get("/transactions", authMiddleware, roleAuthorizer.canAccess("librarian","student"), (req, res) => borrowController.GetTransactions(req, res));
 router.patch("/return", authMiddleware, roleAuthorizer.canAccess("librarian"), (req, res) => borrowController.returnBook(req, res));
+router.delete("/request", authMiddleware, roleAuthorizer.canAccess("student","librarian"), (req, res) => borrowController.deleteRequest(req, res));
 
 export default router;

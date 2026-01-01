@@ -109,4 +109,17 @@ async GetAllTransactionsByStatus(status: string, studentReg?: string, bookId?: s
             return null;
         }
     }
+
+    async DeleteRequest(BookId: string, StudentReg: string): Promise<boolean> {
+        try{
+            const [result] = await pool.execute<ResultSetHeader>(
+                "DELETE FROM transactions WHERE bookId = ? AND studentReg = ? AND status = 'REQUESTED'",
+                [BookId, StudentReg]
+            );
+            return result.affectedRows > 0;
+        }catch(error){
+            console.log("Error deleting request:", error);
+            return false;
+        }
+    }
 }

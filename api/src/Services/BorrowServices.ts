@@ -13,7 +13,6 @@ export class borrowService{
     ){}
 
         
-
         async requestNewBook(dto: RequestNewBookDTO, userId: string, userRole: string): Promise<Partial<Transaction>|null>{
             try{
               // Ownership check: users can only request books for themselves
@@ -51,13 +50,14 @@ export class borrowService{
                 return null;
             }  
         }
-       async GetAllTransactionsByStatus(status:string, userId: string, userRole: string): Promise<Transaction []|null>{
+        async GetAllTransactionsByStatus(status:string, userId: string, userRole: string, Registration?: string): Promise<Transaction []|null>{
             try{
               if (status === 'ISSUED' || status === 'RETURNED' || status === 'OVERDUE' || status === 'REQUESTED') {
                 const transactions: Transaction[] = await this.transactionRepo.GetAllTransactionsByStatus(status);
-                
+                console.log(transactions);
                 // Ownership check: filter transactions by user
-                return transactions.filter(t => t.studentReg === userId);
+               if (userRole === "student") return transactions.filter(t => t.studentReg === Registration);
+               return transactions;
               }
               throw new Error("Status not valid");
             } catch(e) {
@@ -80,6 +80,33 @@ export class borrowService{
               }
             }catch(e){
                 return null;
+            }
+        }
+
+        async deleteRequest(dto: RequestNewBookDTO, userId: string, userRole: string): Promise<boolean>{
+            try{
+              // Ownership check: users can only delete their own requests
+              if(userRole === 'student' && dto.StudentReg !== userId) {
+                throw new Error("You can only delete your own requests");
+              }
+
+              // Check if student and book exist
+              if(this.studentservice.getById(dto.StudentReg) != null && this.bookservice.getById(dto.bookID) != null){
+                // Verify the request exists and is in REQUESTED status
+                const existingRequest = await this.transactionRepo.GetAllTransactionsByStatus("REQUESTED", dto.StudentReg, dto.bookID);
+                
+                if(existingRequest.length === 0){
+                  throw new Error("No pending request found for this book");
+                }
+
+                const deleted = await this.transactionRepo.DeleteRequest(dto.bookID, dto.StudentReg);
+                return deleted;
+              }else{
+                throw new Error("Book or Student not exist");
+              }
+            }catch(e){
+                console.log(e);
+                return false;
             }
         }
 }

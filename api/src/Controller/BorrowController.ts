@@ -72,6 +72,7 @@ export class BorrowController {
         try{
             const {status} = req.query;
             const userId = req.user?.id;
+            const Registration = req.user?.registration;
             const userRole = req.user?.role;
 
             if (!userId || !userRole) {
@@ -81,7 +82,7 @@ export class BorrowController {
                 });
             }
 
-            const transactions: Transaction[] | null = await this.borrowService.GetAllTransactionsByStatus(status as string, userId, userRole);
+            const transactions: Transaction[] | null = await this.borrowService.GetAllTransactionsByStatus(status as string, userId, userRole,Registration);
             console.log(transactions);
             if(!transactions){
                 return res.status(400).json({
@@ -135,6 +136,41 @@ export class BorrowController {
             return res.status(500).json({
                 success: false,
                 message: "Error returning book",
+                error: error instanceof Error ? error.message : "Unknown error"
+            });
+        }
+    }
+
+    async deleteRequest(req: Request, res: Response): Promise<Response> {
+        try {
+            const dto: RequestNewBookDTO = req.body;
+            const userId = req.user?.id;
+            const userRole = req.user?.role;
+
+            if (!userId || !userRole) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Unauthorized - User information missing"
+                });
+            }
+
+            const deleted = await this.borrowService.deleteRequest(dto, userId, userRole);
+            
+            if (!deleted) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Request not found or could not be deleted"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Book request deleted successfully"
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: "Error deleting book request",
                 error: error instanceof Error ? error.message : "Unknown error"
             });
         }
