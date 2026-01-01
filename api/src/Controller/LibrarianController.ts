@@ -48,7 +48,10 @@ export class LibrarianController {
     async getById(req: Request, res: Response): Promise<Response> {
         try {
             const { id } = req.params;
-            const librarian = await this.librarianService.getById(id);
+            const userId = req.user?.id;
+            const userRole = req.user?.role;
+            
+            const librarian = await this.librarianService.getById(id, userId, userRole);
             
             if (!librarian) {
                 return res.status(404).json({
@@ -74,7 +77,10 @@ export class LibrarianController {
         try {
             const { id } = req.params;
             const dto: UpdateLibrarianDTO = req.body;
-            const librarian = await this.librarianService.update(id, dto);
+            const userId = req.user?.id;
+            const userRole = req.user?.role;
+            
+            const librarian = await this.librarianService.update(id, dto, userId, userRole);
             
             if (!librarian) {
                 return res.status(404).json({

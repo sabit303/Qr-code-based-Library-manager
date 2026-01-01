@@ -14,10 +14,18 @@ export class borrowService{
 
         
 
-        async requestNewBook(dto: RequestNewBookDTO): Promise<Partial<Transaction>|null>{
+        async requestNewBook(dto: RequestNewBookDTO, userId: string, userRole: string): Promise<Partial<Transaction>|null>{
             try{
+              // Ownership check: users can only request books for themselves
+              if(userRole === 'student'){
+              if (dto.StudentReg !== userId) {
+                throw new Error("You can only request books for yourself");
+              }
+            }
               if(this.studentservice.getById(dto.StudentReg) != null && !this.bookservice.getById(dto.bookID) != null){
-                
+                const ifRequestedTheSameBook = await this.transactionRepo.GetAllTransactionsByStatus("REQUESTED",dto.StudentReg,dto.bookID);
+                console.log(ifRequestedTheSameBook);
+                if( ifRequestedTheSameBook.length != 0  ){throw new Error("Already have a Request for same Book")}
                     const transactionDetails = this.transactionRepo.RequestANewBook(dto.bookID,dto.StudentReg);
                     console.log(transactionDetails);
                     return transactionDetails;
@@ -43,11 +51,13 @@ export class borrowService{
                 return null;
             }  
         }
-       async GetAllTransactionsByStatus(status:string): Promise<Transaction []|null>{
+       async GetAllTransactionsByStatus(status:string, userId: string, userRole: string): Promise<Transaction []|null>{
             try{
               if (status === 'ISSUED' || status === 'RETURNED' || status === 'OVERDUE' || status === 'REQUESTED') {
                 const transactions: Transaction[] = await this.transactionRepo.GetAllTransactionsByStatus(status);
-                return transactions;
+                
+                // Ownership check: filter transactions by user
+                return transactions.filter(t => t.studentReg === userId);
               }
               throw new Error("Status not valid");
             } catch(e) {
@@ -55,8 +65,13 @@ export class borrowService{
               return null;
             }
        } 
-        async returnBook(dto: RequestNewBookDTO): Promise<Partial<Transaction>|null>{
+        async returnBook(dto: RequestNewBookDTO, userId: string, userRole: string): Promise<Partial<Transaction>|null>{
            try{
+              // Ownership check: users can only return their own books
+              if (dto.StudentReg !== userId) {
+                throw new Error("You can only return your own books");
+              }
+
               if(this.studentservice.getById(dto.StudentReg) != null && this.bookservice.getById(dto.bookID) != null){
                     const transactionDetails = this.transactionRepo.ReturnBorrowedBook(dto.bookID,dto.StudentReg);
                     return transactionDetails;

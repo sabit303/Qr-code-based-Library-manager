@@ -9,7 +9,17 @@ export class BorrowController {
     async requestNewBook(req: Request, res: Response): Promise<Response> {
         try {
             const dto: RequestNewBookDTO = req.body;
-            const transaction = await this.borrowService.requestNewBook(dto);
+            const Registration = req.user?.registration;
+            const userRole = req.user?.role;
+            console.log(req.user);
+            if (!Registration || !userRole) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Unauthorized - User information missing"
+                });
+            }
+
+            const transaction = await this.borrowService.requestNewBook(dto, Registration, userRole);
             console.log(transaction);
             if (!transaction) {
                 return res.status(400).json({
@@ -61,7 +71,17 @@ export class BorrowController {
     async GetTransactions(req: Request, res:Response): Promise<Response>{
         try{
             const {status} = req.query;
-            const transactions: Transaction[] | null = await this.borrowService.GetAllTransactionsByStatus(status as string);
+            const userId = req.user?.id;
+            const userRole = req.user?.role;
+
+            if (!userId || !userRole) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Unauthorized - User information missing"
+                });
+            }
+
+            const transactions: Transaction[] | null = await this.borrowService.GetAllTransactionsByStatus(status as string, userId, userRole);
             console.log(transactions);
             if(!transactions){
                 return res.status(400).json({
@@ -87,7 +107,17 @@ export class BorrowController {
     async returnBook(req: Request, res: Response): Promise<Response> {
         try {
             const dto: RequestNewBookDTO = req.body;
-            const transaction = await this.borrowService.returnBook(dto);
+            const userId = req.user?.id;
+            const userRole = req.user?.role;
+
+            if (!userId || !userRole) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Unauthorized - User information missing"
+                });
+            }
+
+            const transaction = await this.borrowService.returnBook(dto, userId, userRole);
             
             if (!transaction) {
                 return res.status(404).json({

@@ -62,7 +62,10 @@ export class StudentController {
   async getById(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
-      const student = await this.studentService.getById(id);
+      const userId = req.user?.id;
+      const userRole = req.user?.role;
+      
+      const student = await this.studentService.getById(id, userId, userRole);
       
       if (!student) {
         return res.status(404).json({ 
@@ -88,7 +91,10 @@ export class StudentController {
     try {
       const { id } = req.params;
       const dto: UpdateStudentDTO = req.body;
-      const student = await this.studentService.update(id, dto);
+      const userId = req.user?.id;
+      const userRole = req.user?.role;
+      
+      const student = await this.studentService.update(id, dto, userId, userRole);
       
       if (!student) {
         return res.status(404).json({ 
@@ -139,7 +145,10 @@ export class StudentController {
   async generateQRCode(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
-      const qrCode = await this.studentService.generateQRCode(id);
+      const userId = req.user?.id;
+      const userRole = req.user?.role;
+      
+      const qrCode = await this.studentService.generateQRCode(id, userId, userRole);
       
       if (!qrCode) {
         return res.status(404).json({ 

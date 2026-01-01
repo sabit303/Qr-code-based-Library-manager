@@ -27,11 +27,20 @@ export class LibrarianService {
     };
   }
 
-  async getById(id: string): Promise<Librarian | null> {
+  async getById(id: string, userId?: string, userRole?: string): Promise<Librarian | null> {
+    // Ownership check: users can only view their own profile
+    if (userId && id !== userId) {
+      throw new Error("You can only view your own profile");
+    }
     return this.librarianRepository.findById(id);
   }
 
-  async update(id: string, dto: UpdateLibrarianDTO): Promise<Librarian | null> {
+  async update(id: string, dto: UpdateLibrarianDTO, userId?: string, userRole?: string): Promise<Librarian | null> {
+    // Ownership check: users can only update their own profile
+    if (userId && id !== userId) {
+      throw new Error("You can only update your own profile");
+    }
+    
     // If password is being updated, hash it
     if (dto.password) {
       dto.password = await this.passwordHasher.hashPassword(dto.password);

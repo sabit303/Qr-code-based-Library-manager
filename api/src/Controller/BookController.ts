@@ -52,8 +52,8 @@ export class BookController {
 
     async search(req: Request, res: Response): Promise<Response> {
         try {
-            const { q } = req.query;
-            const books = await this.bookService.search(q as string);
+            const { query } = req.query;
+            const books = await this.bookService.search(query as string);
             return res.status(200).json({
                 success: true,
                 data: books

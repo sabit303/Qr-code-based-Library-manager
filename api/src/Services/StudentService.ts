@@ -31,11 +31,19 @@ export class StudentService {
     };
   }
 
-  async getById(id: string): Promise<Student | null> {
+  async getById(id: string, userId?: string, userRole?: string): Promise<Student | null> {
+    // Ownership check: users can only view their own profile
+    if (userId && id !== userId) {
+      throw new Error("You can only view your own profile");
+    }
     return this.studentRepository.findById(id);
   }
 
-  async update(id: string, dto: UpdateStudentDTO): Promise<Student | null> {
+  async update(id: string, dto: UpdateStudentDTO, userId?: string, userRole?: string): Promise<Student | null> {
+    // Ownership check: users can only update their own profile
+    if (userId && id !== userId) {
+      throw new Error("You can only update your own profile");
+    }
     return this.studentRepository.update(id, dto);
   }
 
@@ -43,7 +51,12 @@ export class StudentService {
     return this.studentRepository.delete(id);
   }
 
-  async generateQRCode(id: string): Promise<string | null> {
+  async generateQRCode(id: string, userId?: string, userRole?: string): Promise<string | null> {
+    // Ownership check: users can only generate their own QR code
+    if (userId && id !== userId) {
+      throw new Error("You can only generate your own QR code");
+    }
+    
     const student = await this.studentRepository.findById(id);
     if (!student) return null;
     

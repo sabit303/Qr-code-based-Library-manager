@@ -61,24 +61,36 @@ export class MySQLTransactionRepository implements IBorrowRepository{
     }
 
 
-   async GetAllTransactionsByStatus(status: string): Promise<Transaction[]>{
-               try{
-                    const query = `SELECT * from transactions where status = ?`;
-                    const [rows] = await pool.execute<RowDataPacket[]>(query,[status]);
-                    
-                    return rows.map(row => ({
-                         id: row.id,
-                         bookId: row.bookId,
-                         studentReg: row.studentReg,
-                         status: row.status,
-                         borrowedDate: row.borrowedDate,
-                         dueDate: row.dueDate
-                    })) as Transaction[];
-               }catch(error){
-                    console.log(error);
-                    return [];
-               }
-         }
+async GetAllTransactionsByStatus(status: string, studentReg?: string, bookId?: string): Promise<Transaction[]>{
+                try{
+                      let query = `SELECT * from transactions where status = ?`;
+                      const params: any[] = [status];
+                      
+                      if (studentReg) {
+                             query += ` AND studentReg = ?`;
+                             params.push(studentReg);
+                      }
+                      
+                      if (bookId) {
+                             query += ` AND bookId = ?`;
+                             params.push(bookId);
+                      }
+                      
+                      const [rows] = await pool.execute<RowDataPacket[]>(query, params);
+                      
+                      return rows.map(row => ({
+                             id: row.id,
+                             bookId: row.bookId,
+                             studentReg: row.studentReg,
+                             status: row.status,
+                             borrowedDate: row.borrowedDate,
+                             dueDate: row.dueDate
+                      })) as Transaction[];
+                }catch(error){
+                      console.log(error);
+                      return [];
+                }
+        }
 
     async ReturnBorrowedBook(BookId: String, StudentReg: string): Promise<Partial<Transaction | null>> {
         try{
