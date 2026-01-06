@@ -43,7 +43,7 @@ export class StudentService {
 
   async update(id: string, dto: UpdateStudentDTO, userId?: string, userRole?: string): Promise<Student | null> {
     // Ownership check: users can only update their own profile
-    if (userId && id !== userId) {
+    if (userRole === "student" && id !== userId) {
       throw new Error("You can only update your own profile");
     }
     return this.studentRepository.update(id, dto);

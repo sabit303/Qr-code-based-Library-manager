@@ -12,7 +12,7 @@ export class AuthorizeRole {
       }
 
       // 2️⃣ Role check
-      if (!allowedRoles.includes(req.user.role)) {
+      if (!req.user.role || !allowedRoles.includes(req.user.role)) {
         return res.status(403).json({
           msg: "Forbidden role"
         });
