@@ -40,11 +40,11 @@ export class StudentController {
 
   async getAll(req: Request, res: Response): Promise<Response> {
     try {
-      const { page = 1, limit = 10, search } = req.query;
+      console.log("hey")
+      const { page = 1, limit = 10 } = req.query;
       const result = await this.studentService.getAll({
         page: Number(page),
         limit: Number(limit),
-        search: search as string
       });
       return res.status(200).json({ 
         success: true,

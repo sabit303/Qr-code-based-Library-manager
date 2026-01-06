@@ -22,8 +22,10 @@ export class StudentService {
       //qrCode 
     });
   }
-  async getAll(params: { page: number; limit: number; search?: string }): Promise<{ students: Student[]; total: number; page: number; limit: number }> {
+  async getAll(params: { page: number; limit: number; }): Promise<{ students: Student[]; total: number; page: number; limit: number }> {
+    console.log(params)
     const result = await this.studentRepository.findAll(params);
+    console.log(result);
     return {
       ...result,
       page: params.page,

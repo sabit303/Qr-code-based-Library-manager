@@ -66,9 +66,11 @@ export class MySQLStudentRepository implements IStudentRepository {
     // Add pagination
     const offset = (params.page - 1) * params.limit;
     query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
-    queryParams.push(params.limit, offset);
-
+    queryParams.push(String(params.limit) , String(offset) );
+console.log(typeof(params.limit));
     const [rows] = await pool.execute<RowDataPacket[]>(query, queryParams);
+    console.log(rows);
+
     const students = rows.map(row => this.mapRowToStudent(row));
 
     return { students, total };
