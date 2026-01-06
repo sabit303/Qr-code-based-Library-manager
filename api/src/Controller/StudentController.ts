@@ -64,6 +64,7 @@ export class StudentController {
       const { id } = req.params;
       const userId = req.user?.id;
       const userRole = req.user?.role;
+      console.log(userRole)
       
       const student = await this.studentService.getById(id, userId, userRole);
       

@@ -35,7 +35,7 @@ export class StudentService {
 
   async getById(id: string, userId?: string, userRole?: string): Promise<Student | null> {
     // Ownership check: users can only view their own profile
-    if (userId && id !== userId) {
+    if ( userRole === "student" && id !== userId ) {
       throw new Error("You can only view your own profile");
     }
     return this.studentRepository.findById(id);
