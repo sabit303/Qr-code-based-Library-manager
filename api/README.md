@@ -1,48 +1,37 @@
 # QR Code Based Library Manager API
 
-## Student Endpoint Documentation
+A RESTful API for managing library operations including books, students, librarians, and book borrowing transactions with QR code integration.
 
-This API follows SOLID principles with clean architecture and **MySQL database integration**.
+## Features
 
-### SOLID Principles Applied:
-
-1. **Single Responsibility Principle (SRP)**
-   - `StudentController`: Handles HTTP requests/responses
-   - `StudentService`: Contains business logic
-   - `MySQLStudentRepository`: Manages data persistence with MySQL
-   - `QRCodeService`: Handles QR code operations
-
-2. **Open/Closed Principle (OCP)**
-   - Classes are open for extension but closed for modification
-   - Use interfaces for flexibility
-
-3. **Liskov Substitution Principle (LSP)**
-   - Repository implements IStudentRepository interface
-   - Can easily switch between `StudentRepository` (in-memory) and `MySQLStudentRepository`
-
-4. **Interface Segregation Principle (ISP)**
-   - Clean, focused interfaces
-   - No unnecessary dependencies
-
-5. **Dependency Inversion Principle (DIP)**
-   - Controller depends on Service abstraction
-   - Service depends on Repository interface
-   - Easy to swap implementations (in-memory ↔ MySQL)
+✅ Complete library management system
+✅ RESTful API design with JWT authentication
+✅ SOLID principles implementation
+✅ MySQL database integration
+✅ QR code generation for students
+✅ Book borrowing system with transaction tracking
+✅ Role-based access control (Student/Librarian)
+✅ Pagination & search functionality
+✅ TypeScript support
+✅ Clean architecture with dependency injection
+✅ Environment-based configuration
 
 ## Prerequisites
 
+### For Docker (Recommended)
+- Docker
+- Docker Compose
+
+### For Local Development (Without Docker)
 - Node.js (v16 or higher)
 - MySQL Server (v5.7 or higher)
 - npm or yarn
 
 ## Installation
 
-### 1. Install Dependencies
-```bash
-npm install
-```
+### Option A: Using Docker (Recommended)
 
-### 2. Configure Database
+#### 1. Configure Environment
 Create a `.env` file in the root directory:
 ```env
 # Server Configuration
@@ -54,25 +43,60 @@ DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_mysql_password
 DB_NAME=library_manager
+
+# JWT Configuration
+JWT_SECRET=your_secret_key_here
+JWT_EXPIRES_IN=7d
 ```
 
-### 3. Setup MySQL Database
+#### 2. Start with Docker
 
-**Option A: Using the initialization script**
 ```bash
-npm run db:init
+# Build the Docker image
+docker-compose build
+
+# Start MySQL database and API server
+docker-compose up -d
+
+
 ```
 
-**Option B: Manual setup**
+The database will be automatically initialized with the schema on first run.
+
+**Useful Docker commands:**
+```bash
+# View running containers
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+
+# Stop containers
+docker-compose down
+
+# Restart containers
+docker-compose restart
+```
+
+---
+
+### Option B: Local Development (Without Docker)
+
+#### 1. Install Dependencies
+```bash
+npm install
+```
+
+#### 2. Configure Environment
+Create a `.env` file (same as above)
+
+#### 3. Setup MySQL Database
+Ensure MySQL is running locally and create the database:
 ```bash
 mysql -u root -p < src/config/init-db.sql
 ```
 
-**Option C: Using MySQL Workbench**
-1. Open MySQL Workbench
-2. Execute the SQL file: `src/config/init-db.sql`
-
-### 4. Run the Application
+#### 4. Run the Application
 
 **Development mode:**
 ```bash
@@ -85,12 +109,121 @@ npm run build
 npm start
 ```
 
+## Architecture
+
+```
+src/
+├── config/
+│   ├── database.ts          # MySQL connection pool
+│   └── init-db.sql          # Database schema & initial data
+├── Controller/              # HTTP layer (handles requests/responses)
+│   ├── authController.ts
+│   ├── BookController.ts
+│   ├── BorrowController.ts
+│   ├── LibrarianController.ts
+│   └── StudentController.ts
+├── Services/                # Business logic layer
+│   ├── BookServices.ts
+│   ├── BorrowServices.ts
+│   ├── LibrarianService.ts
+│   ├── LoginService.ts
+│   ├── QRCodeService.ts
+│   └── StudentService.ts
+├── Repositories/            # Data access layer
+│   ├── MySQLBookRepository.ts
+│   ├── MySQLBorrowRepository.ts
+│   ├── MySQLLibrarianRepository.ts
+│   └── MySQLStudentRepository.ts
+├── Interfaces/              # Repository interfaces
+│   ├── IBookRepository.ts
+│   ├── IBorrowRepository.ts
+│   ├── ILibrarianRepository.ts
+│   └── IStudentRepository.ts
+├── Entities/                # Domain models
+│   ├── Book.ts
+│   ├── Librarian.ts
+│   ├── Student.ts
+│   └── Transaction.ts
+├── DTOs/                    # Data Transfer Objects
+│   ├── BookDTO.ts
+│   ├── LibrarianDTO.ts
+│   ├── LoggedInDTO.ts
+│   ├── LoginDTO.ts
+│   └── StudentDTO.ts
+├── middlewares/
+│   ├── authMiddleware.ts
+│   ├── authorizeRoleMiddleware.ts
+│   └── requestLogger.ts
+├── Routes/                  # Route definitions
+│   ├── AuthRoutes.ts
+│   ├── BookRoutes.ts
+│   ├── BorrowRoutes.ts
+│   ├── LibrarianRoutes.ts
+│   └── StudentRoutes.ts
+├── Helper/
+│   └── passHash.ts          # Password hashing utilities
+├── types/
+│   └── express.d.ts         # TypeScript type definitions
+├── validators/              # Input validation
+├── app.ts                   # Express app configuration
+├── server.ts                # Server entry point
+└── init-database.ts         # Database initialization script
+```
+
 ## API Endpoints
 
-### 1. Create Student
+### Health Check
+```http
+GET /health
+```
+
+**Response:**
+```json
+{
+  "status": "OK",
+  "message": "Server is running"
+}
+```
+
+---
+
+### Authentication
+
+#### Register/Login
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "username": "student123",
+  "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "uuid",
+      "username": "student123",
+      "role": "student"
+    }
+  }
+}
+```
+
+---
+
+### Students
+
+#### Create Student
 ```http
 POST /api/students
 Content-Type: application/json
+Authorization: Bearer <token>
 
 {
   "Name": "John Doe",
@@ -122,9 +255,10 @@ Content-Type: application/json
 }
 ```
 
-### 2. Get All Students (with pagination & search)
+#### Get All Students
 ```http
 GET /api/students?page=1&limit=10&search=John
+Authorization: Bearer <token>
 ```
 
 **Response:**
@@ -140,15 +274,17 @@ GET /api/students?page=1&limit=10&search=John
 }
 ```
 
-### 3. Get Student by ID
+#### Get Student by ID
 ```http
 GET /api/students/:id
+Authorization: Bearer <token>
 ```
 
-### 4. Update Student
+#### Update Student
 ```http
 PUT /api/students/:id
 Content-Type: application/json
+Authorization: Bearer <token>
 
 {
   "Name": "John Updated",
@@ -156,47 +292,180 @@ Content-Type: application/json
 }
 ```
 
-### 5. Delete Student
+#### Delete Student
 ```http
 DELETE /api/students/:id
+Authorization: Bearer <token>
 ```
 
-### 6. Generate QR Code for Student
+#### Generate QR Code for Student
 ```http
 POST /api/students/:id/qrcode
+Authorization: Bearer <token>
 ```
 
-### 7. Get Student by QR Code
+#### Get Student by QR Code
 ```http
 GET /api/students/qrcode/:qrCode
+Authorization: Bearer <token>
 ```
 
-## Architecture
+---
 
+### Books
+
+#### Create Book
+```http
+POST /api/books
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "title": "Introduction to Algorithms",
+  "author": "Thomas H. Cormen",
+  "isbn": "978-0262033848",
+  "publisher": "MIT Press",
+  "publishedYear": 2009,
+  "category": "Computer Science",
+  "totalCopies": 5,
+  "availableCopies": 5
+}
 ```
-src/
-├── config/
-│   ├── database.ts          # MySQL connection pool
-│   └── init-db.sql          # Database schema
-├── Controller/              # HTTP layer (handles requests/responses)
-│   └── StudentController.ts
-├── Services/                # Business logic layer
-│   ├── StudentService.ts
-│   └── QRCodeService.ts
-├── Repositories/            # Data access layer
-│   ├── IStudentRepository.ts       # Interface (abstraction)
-│   ├── StudentRepository.ts        # In-memory implementation
-│   └── MySQLStudentRepository.ts   # MySQL implementation ✨
-├── Entities/                # Domain models
-│   └── Student.ts
-├── DTOs/                    # Data Transfer Objects
-│   └── StudentDTO.ts
-├── Routes/                  # Route definitions
-│   └── StudentRoutes.ts
-├── app.ts                   # Express app configuration
-├── server.ts                # Server entry point
-└── init-database.ts         # Database initialization script
+
+#### Get All Books
+```http
+GET /api/books?page=1&limit=10&search=algorithm
+Authorization: Bearer <token>
 ```
+
+#### Get Book by ID
+```http
+GET /api/books/:id
+Authorization: Bearer <token>
+```
+
+#### Update Book
+```http
+PUT /api/books/:id
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "totalCopies": 10,
+  "availableCopies": 8
+}
+```
+
+#### Delete Book
+```http
+DELETE /api/books/:id
+Authorization: Bearer <token>
+```
+
+---
+
+### Borrow/Return Books
+
+#### Borrow Book
+```http
+POST /api/borrow
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "studentId": "uuid-of-student",
+  "bookId": "uuid-of-book"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "transactionId": "uuid",
+    "studentId": "uuid",
+    "bookId": "uuid",
+    "borrowDate": "2026-01-08T10:00:00.000Z",
+    "dueDate": "2026-01-22T10:00:00.000Z",
+    "status": "borrowed"
+  },
+  "message": "Book borrowed successfully"
+}
+```
+
+#### Return Book
+```http
+POST /api/borrow/return
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "transactionId": "uuid-of-transaction"
+}
+```
+
+#### Get Borrow History
+```http
+GET /api/borrow/history/:studentId
+Authorization: Bearer <token>
+```
+
+#### Get Active Borrows
+```http
+GET /api/borrow/active
+Authorization: Bearer <token>
+```
+
+---
+
+### Librarians
+
+#### Create Librarian
+```http
+POST /api/librarian
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "username": "librarian1",
+  "password": "secure_password",
+  "name": "Jane Smith",
+  "email": "jane@library.com"
+}
+```
+
+#### Get All Librarians
+```http
+GET /api/librarian
+Authorization: Bearer <token>
+```
+
+#### Get Librarian by ID
+```http
+GET /api/librarian/:id
+Authorization: Bearer <token>
+```
+
+#### Update Librarian
+```http
+PUT /api/librarian/:id
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "name": "Jane Updated",
+  "email": "jane.updated@library.com"
+}
+```
+
+#### Delete Librarian
+```http
+DELETE /api/librarian/:id
+Authorization: Bearer <token>
+```
+
+---
 
 ## Database Schema
 
@@ -217,14 +486,71 @@ CREATE TABLE students (
 );
 ```
 
+### Books Table
+```sql
+CREATE TABLE books (
+  id VARCHAR(36) PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  author VARCHAR(255) NOT NULL,
+  isbn VARCHAR(20) UNIQUE,
+  publisher VARCHAR(255),
+  publishedYear INT,
+  category VARCHAR(100),
+  totalCopies INT NOT NULL DEFAULT 1,
+  availableCopies INT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+### Librarians Table
+```sql
+CREATE TABLE librarians (
+  id VARCHAR(36) PRIMARY KEY,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE,
+  role VARCHAR(50) DEFAULT 'librarian',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+### Transactions Table
+```sql
+CREATE TABLE transactions (
+  id VARCHAR(36) PRIMARY KEY,
+  studentId VARCHAR(36) NOT NULL,
+  bookId VARCHAR(36) NOT NULL,
+  borrowDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  dueDate TIMESTAMP NOT NULL,
+  returnDate TIMESTAMP NULL,
+  status ENUM('borrowed', 'returned', 'overdue') DEFAULT 'borrowed',
+  FOREIGN KEY (studentId) REFERENCES students(id),
+  FOREIGN KEY (bookId) REFERENCES books(id)
+);
+```
+
 ## Testing the API
 
 ### Using curl:
+
+**Login:**
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "student123",
+    "password": "password123"
+  }'
+```
 
 **Create a student:**
 ```bash
 curl -X POST http://localhost:3000/api/students \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
     "Name": "Jane Smith",
     "Roll": "2021002",
@@ -238,210 +564,109 @@ curl -X POST http://localhost:3000/api/students \
 
 **Get all students:**
 ```bash
-curl http://localhost:3000/api/students
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  http://localhost:3000/api/students
 ```
 
 **Search students:**
 ```bash
-curl "http://localhost:3000/api/students?search=Jane&page=1&limit=10"
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  "http://localhost:3000/api/students?search=Jane&page=1&limit=10"
 ```
 
-**Generate QR code:**
+**Borrow a book:**
 ```bash
-curl -X POST http://localhost:3000/api/students/1/qrcode
+curl -X POST http://localhost:3000/api/borrow \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "studentId": "uuid-of-student",
+    "bookId": "uuid-of-book"
+  }'
 ```
 
-## Switching Between In-Memory and MySQL
+### Using Postman:
 
-Thanks to **Dependency Inversion Principle**, you can easily switch between implementations:
+Import the provided Postman collection file: `Library-Manager.postman_collection.json`
 
-**In `src/Routes/StudentRoutes.ts`:**
+## SOLID Principles Implementation
 
-**For MySQL (current):**
-```typescript
-import { MySQLStudentRepository } from "../Repositories/MySQLStudentRepository.js";
-const studentRepository = new MySQLStudentRepository();
-```
+### 1. Single Responsibility Principle (SRP)
+- **Controllers**: Handle HTTP requests/responses only
+- **Services**: Contain business logic and orchestration
+- **Repositories**: Manage data persistence operations
+- **Entities**: Represent domain models
 
-**For In-Memory:**
-```typescript
-import { StudentRepository } from "../Repositories/StudentRepository.js";
-const studentRepository = new StudentRepository();
-```
+### 2. Open/Closed Principle (OCP)
+- Classes are open for extension but closed for modification
+- Use interfaces for flexibility and extensibility
+
+### 3. Liskov Substitution Principle (LSP)
+- Repositories implement their respective interfaces
+- Can easily switch between different implementations (e.g., MySQL ↔ PostgreSQL)
+
+### 4. Interface Segregation Principle (ISP)
+- Clean, focused interfaces for each repository
+- No unnecessary dependencies or methods
+
+### 5. Dependency Inversion Principle (DIP)
+- Controllers depend on Service abstractions
+- Services depend on Repository interfaces
+- Easy to swap implementations without changing high-level code
 
 ## Troubleshooting
 
 ### Database Connection Error
-- Ensure MySQL is running
-- Check `.env` credentials
-- Verify database exists: `npm run db:init`
+- Ensure Docker containers are running: `docker-compose ps`
+- Restart containers: `docker-compose restart`
+- Check container logs: `docker-compose logs mysql`
+- Verify `.env` credentials match docker-compose.yml configuration
 
 ### Port Already in Use
-- Change `PORT` in `.env`
-- Or kill the process using port 3000
+- Change `PORT` in `.env` file
+- Or kill the process using port 3000:
+  - Windows: `netstat -ano | findstr :3000` then `taskkill /PID <PID> /F`
+  - Linux/Mac: `lsof -ti:3000 | xargs kill -9`
 
 ### TypeScript Errors
 - Run `npm install` to ensure all dependencies are installed
 - Check `tsconfig.json` configuration
+- Clear dist folder: `rm -rf dist/` and rebuild
 
-## Features
+### JWT Authentication Issues
+- Ensure `JWT_SECRET` is set in `.env`
+- Check token expiration time in `.env`
+- Verify Authorization header format: `Bearer <token>`
 
-✅ RESTful API design
-✅ SOLID principles implementation  
-✅ MySQL database integration  
-✅ QR code generation  
-✅ Pagination & search  
-✅ UUID primary keys  
-✅ Environment configuration  
-✅ Error handling  
-✅ TypeScript support  
-✅ Dependency injection  
-✅ Clean architecture  
+## Development Notes
 
-## Future Enhancements
+- All routes except `/health` and `/api/auth/login` require JWT authentication
+- Use the `Authorization: Bearer <token>` header for authenticated requests
+- Passwords are hashed using bcryptjs before storage
+- UUIDs are used for all primary keys
+- Database connection uses connection pooling for better performance
 
-- [ ] Input validation middleware
-- [ ] JWT authentication
-- [ ] Rate limiting
-- [ ] API documentation (Swagger)
-- [ ] Unit tests
-- [ ] Integration tests
-- [ ] Logging system
-- [ ] Database migrations
-- [ ] Connection pooling optimization
+## Contributing
 
-### SOLID Principles Applied:
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -am 'Add feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Submit a pull request
 
-1. **Single Responsibility Principle (SRP)**
-   - `StudentController`: Handles HTTP requests/responses
-   - `StudentService`: Contains business logic
-   - `StudentRepository`: Manages data persistence
-   - `QRCodeService`: Handles QR code operations
+## License
 
-2. **Open/Closed Principle (OCP)**
-   - Classes are open for extension but closed for modification
-   - Use interfaces for flexibility
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-3. **Liskov Substitution Principle (LSP)**
-   - Repository implements IStudentRepository interface
-   - Can be replaced with database implementation
+## Links
 
-4. **Interface Segregation Principle (ISP)**
-   - Clean, focused interfaces
-   - No unnecessary dependencies
+- **Repository**: https://github.com/sabit303/Qr-code-based-Library-manager
+- **Issues**: https://github.com/sabit303/Qr-code-based-Library-manager/issues
 
-5. **Dependency Inversion Principle (DIP)**
-   - Controller depends on Service abstraction
-   - Service depends on Repository interface
+## Author
 
-## API Endpoints
+arks
 
-### 1. Create Student
-```http
-POST /api/students
-Content-Type: application/json
+---
 
-{
-  "Name": "John Doe",
-  "Roll": "2021001",
-  "Registration": "REG2021001",
-  "Department": "Computer Science",
-  "Session": "2021-2022",
-  "ContactNumber": "+1234567890",
-  "Address": "123 Main St"
-}
-```
-
-### 2. Get All Students (with pagination & search)
-```http
-GET /api/students?page=1&limit=10&search=John
-```
-
-### 3. Get Student by ID
-```http
-GET /api/students/:id
-```
-
-### 4. Update Student
-```http
-PUT /api/students/:id
-Content-Type: application/json
-
-{
-  "Name": "John Updated",
-  "ContactNumber": "+0987654321"
-}
-```
-
-### 5. Delete Student
-```http
-DELETE /api/students/:id
-```
-
-### 6. Generate QR Code for Student
-```http
-POST /api/students/:id/qrcode
-```
-
-### 7. Get Student by QR Code
-```http
-GET /api/students/qrcode/:qrCode
-```
-
-## Installation
-
-```bash
-# Install dependencies
-npm install
-
-# Run in development mode
-npm run dev
-
-# Build for production
-npm run build
-
-# Run production build
-npm start
-```
-
-## Architecture
-
-```
-src/
-├── Controller/       # HTTP layer (handles requests/responses)
-├── Services/         # Business logic layer
-├── Repositories/     # Data access layer
-├── Entities/         # Domain models
-├── DTOs/            # Data Transfer Objects
-├── Routes/          # Route definitions
-├── app.ts           # Express app configuration
-└── server.ts        # Server entry point
-```
-
-## Testing the API
-
-You can test the API using curl, Postman, or any HTTP client:
-
-```bash
-# Health check
-curl http://localhost:3000/health
-
-# Create a student
-curl -X POST http://localhost:3000/api/students \
-  -H "Content-Type: application/json" \
-  -d '{
-    "Name": "Jane Smith",
-    "Roll": "2021002",
-    "Registration": "REG2021002",
-    "Department": "Physics",
-    "Session": "2021-2022",
-    "ContactNumber": "+1234567890",
-    "Address": "456 Oak Ave"
-  }'
-
-# Get all students
-curl http://localhost:3000/api/students
-
-# Generate QR code
-curl -X POST http://localhost:3000/api/students/1/qrcode
-```
+**Note**: This is a learning project demonstrating clean architecture principles, SOLID design patterns, and RESTful API best practices with TypeScript and MySQL.
