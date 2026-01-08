@@ -44,7 +44,7 @@ export class MySQLLibrarianRepository implements ILibrarianRepository {
       
       const searchTerm = `%${params.search}%`;
       queryParams.push(searchTerm, searchTerm);
-      countParams.push(searchTerm, searchTerm);
+      countParams.push(String(searchTerm), String(searchTerm));
     }
 
     // Get total count
@@ -54,7 +54,7 @@ export class MySQLLibrarianRepository implements ILibrarianRepository {
     // Add pagination
     const offset = (params.page - 1) * params.limit;
     query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
-    queryParams.push(params.limit, offset);
+    queryParams.push(String(params.limit), String(offset));
 
     const [rows] = await pool.execute<RowDataPacket[]>(query, queryParams);
     const librarians = rows.map(row => this.mapRowToLibrarian(row));
