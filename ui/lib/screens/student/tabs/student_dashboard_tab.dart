@@ -61,7 +61,6 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
               padding: const EdgeInsets.all(20),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  _buildAppBar(user.username),
                   _buildWelcomeBanner(user.username, borrowed.length, overdue.length),
                   const SizedBox(height: 24),
                   _buildStats(borrowed.length, overdue.length, returned.length, requested.length),

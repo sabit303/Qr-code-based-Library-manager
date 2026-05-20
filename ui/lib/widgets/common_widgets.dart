@@ -85,7 +85,7 @@ class StatCard extends StatelessWidget {
               ),
               child: Icon(icon, color: Colors.white, size: 18),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               value,
               style: GoogleFonts.inter(
@@ -96,7 +96,7 @@ class StatCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             Text(
               label,
               style: GoogleFonts.inter(
