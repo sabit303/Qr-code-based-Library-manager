@@ -7,44 +7,18 @@ import { Transaction } from "../Entities/Transaction.js";
 import { connect } from "http2";
 
 
-export class MySQLTransactionRepository implements IBorrowRepository{
-    async RequestANewBook(BookId: string,StudentReg: string): Promise<Partial<Transaction> | null> {
-        try{
-            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?",[BookId]);
-            if(book.length == 0){
+export class MySQLTransactionRepository implements IBorrowRepository {
+    async RequestANewBook(BookId: string, StudentReg: string): Promise<Partial<Transaction> | null> {
+        try {
+            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?", [BookId]);
+            if (book.length == 0) {
                 return null;
-            }else{
-                const[transaction] = await pool.execute<ResultSetHeader>("INSERT INTO transactions (bookId, studentReg, status, createdAt) VALUES (?, ?, 'REQUESTED', NOW())", [BookId, StudentReg]);
-                const [insertedRow] = await pool.execute<RowDataPacket[]>(
-                    "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ?", 
-                    [StudentReg,BookId]
-                );
-                return {
-                    id: insertedRow[0].id,
-                    bookId: BookId,
-                    studentReg: StudentReg,
-                    status: insertedRow[0].status,
-                    borrowDate: insertedRow[0].borrowedDate,
-                    dueDate: insertedRow[0].dueDate
-                }  as Partial<Transaction>;
-            }
-        }catch(error){
-            console.log("Error database operation");
-            return null;
-        }
-    }
-
-    async ConfirmRequestForBook(BookId: string,StudentReg: string): Promise<Partial<Transaction>|null> {
-        try{
-            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?",[BookId]);
-            const updatedcopies = book[0].availableCopies - 1;
-                const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?",[updatedcopies, BookId]);
-                const[transaction] = await pool.execute<ResultSetHeader>(`UPDATE transactions SET status = 'ISSUED', borrowedDate = NOW() WHERE studentReg = ? AND bookId = ?`, [ StudentReg, BookId]);
+            } else {
+                const [transaction] = await pool.execute<ResultSetHeader>("INSERT INTO transactions (bookId, studentReg, status, createdAt) VALUES (?, ?, 'REQUESTED', NOW())", [BookId, StudentReg]);
                 const [insertedRow] = await pool.execute<RowDataPacket[]>(
                     "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ?",
-                    [StudentReg,BookId]
+                    [StudentReg, BookId]
                 );
-                console.log(insertedRow[0]);
                 return {
                     id: insertedRow[0].id,
                     bookId: BookId,
@@ -52,74 +26,162 @@ export class MySQLTransactionRepository implements IBorrowRepository{
                     status: insertedRow[0].status,
                     borrowDate: insertedRow[0].borrowedDate,
                     dueDate: insertedRow[0].dueDate
-                }  as Partial<Transaction>;
+                } as Partial<Transaction>;
+            }
+        } catch (error) {
+            console.log("Error database operation");
+            return null;
+        }
+    }
+
+    async ConfirmRequestForBook(BookId: string, StudentReg: string, returnDate?: string): Promise<Partial<Transaction> | null> {
+        try {
+            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?", [BookId]);
+            const updatedcopies = book[0].availableCopies - 1;
+            const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?", [updatedcopies, BookId]);
             
-        }catch(error){
+            let updateQuery = `UPDATE transactions SET status = 'ISSUED', borrowedDate = NOW()`;
+            const params: any[] = [];
+            
+            if (returnDate) {
+                updateQuery += `, dueDate = ?`;
+                params.push(new Date(returnDate));
+            }
+            
+            updateQuery += ` WHERE studentReg = ? AND bookId = ?`;
+            params.push(StudentReg, BookId);
+            
+            const [transaction] = await pool.execute<ResultSetHeader>(updateQuery, params);
+            const [insertedRow] = await pool.execute<RowDataPacket[]>(
+                "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ?",
+                [StudentReg, BookId]
+            );
+            console.log(insertedRow[0]);
+            return {
+                id: insertedRow[0].id,
+                bookId: BookId,
+                studentReg: StudentReg,
+                status: insertedRow[0].status,
+                borrowDate: insertedRow[0].borrowedDate,
+                dueDate: insertedRow[0].dueDate
+            } as Partial<Transaction>;
+
+        } catch (error) {
             console.log("Error database operation");
             return null;
         }
     }
 
 
-async GetAllTransactionsByStatus(status: string, studentReg?: string, bookId?: string): Promise<Transaction[]>{
-                try{
-                      let query = `SELECT * from transactions where status = ?`;
-                      const params: any[] = [status];
-                      
-                      if (studentReg) {
-                             query += ` AND studentReg = ?`;
-                             params.push(studentReg);
-                      }
-                      
-                      if (bookId) {
-                             query += ` AND bookId = ?`;
-                             params.push(bookId);
-                      }
-                      
-                      const [rows] = await pool.execute<RowDataPacket[]>(query, params);
-                      
-                      return rows.map(row => ({
-                             id: row.id,
-                             bookId: row.bookId,
-                             studentReg: row.studentReg,
-                             status: row.status,
-                             borrowedDate: row.borrowedDate,
-                             dueDate: row.dueDate
-                      })) as Transaction[];
-                }catch(error){
-                      console.log(error);
-                      return [];
-                }
+    async GetAllTransactionsByStatus(status: string, studentReg?: string, bookId?: string): Promise<Transaction[]> {
+        try {
+            let query = `SELECT
+                t.id,
+                t.bookId,
+                t.studentReg,
+                t.status,
+                t.borrowedDate,
+                t.dueDate,
+                t.returnDate,
+                s.Name as studentName,
+                s.Registration as studentRegistration,
+                s.Department as studentDepartment,
+                s.Session as studentSession,
+                b.name as bookTitle,
+                b.authorName as bookAuthor
+            FROM transactions t
+            LEFT JOIN students s ON t.studentReg = s.Registration
+            LEFT JOIN books b ON t.bookId = b.id
+            WHERE t.status = ?`;
+            const params: any[] = [status];
+
+            if (studentReg) {
+                query += ` AND t.studentReg = ?`;
+                params.push(studentReg);
+            }
+
+            if (bookId) {
+                query += ` AND t.bookId = ?`;
+                params.push(bookId);
+            }
+
+            const [rows] = await pool.execute<RowDataPacket[]>(query, params);
+
+            return rows.map(row => ({
+                id: row.id,
+                bookId: row.bookId,
+                studentReg: row.studentReg,
+                status: row.status,
+                borrowedDate: row.borrowedDate,
+                dueDate: row.dueDate,
+                returnDate: row.returnDate,
+                studentName: row.studentName,
+                studentRegistration: row.studentRegistration,
+                studentDepartment: row.studentDepartment,
+                studentSession: row.studentSession,
+                bookTitle: row.bookTitle,
+                bookAuthor: row.bookAuthor
+            })) as Transaction[];
+        } catch (error) {
+            console.log(error);
+            throw error;
         }
+    }
 
     async ReturnBorrowedBook(BookId: String, StudentReg: string): Promise<Partial<Transaction | null>> {
-        try{
-            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?",[BookId]);
+        try {
+            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?", [BookId]);
             const updatedCopies = book[0].availableCopies + 1;
-            const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?",[updatedCopies, BookId]);
-             const connection = await pool.getConnection();
-            await connection.execute(`UPDATE transactions SET returnDate = NOW(), status = 'RETURNED' WHERE studentReg = ? AND bookId = ?`,[StudentReg,BookId])
+            const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?", [updatedCopies, BookId]);
+            const connection = await pool.getConnection();
+            await connection.execute(`UPDATE transactions SET returnDate = NOW(), status = 'RETURNED' WHERE studentReg = ? AND bookId = ?`, [StudentReg, BookId])
             const [transaction] = await connection.execute<RowDataPacket[]>(
-                    `SELECT id, bookId, studentReg, status, returnDate FROM transactions WHERE studentReg = ? AND bookId = ?`, 
-                    [StudentReg,BookId]
-                );
+                `SELECT id, bookId, studentReg, status, returnDate FROM transactions WHERE studentReg = ? AND bookId = ?`,
+                [StudentReg, BookId]
+            );
             return transaction as Partial<Transaction>;
-        }catch(e){
+        } catch (e) {
             console.log("Error in transaction");
             return null;
         }
     }
 
     async DeleteRequest(BookId: string, StudentReg: string): Promise<boolean> {
-        try{
+        try {
             const [result] = await pool.execute<ResultSetHeader>(
                 "DELETE FROM transactions WHERE bookId = ? AND studentReg = ? AND status = 'REQUESTED'",
                 [BookId, StudentReg]
             );
             return result.affectedRows > 0;
-        }catch(error){
+        } catch (error) {
             console.log("Error deleting request:", error);
             return false;
+        }
+    }
+
+    async CountActiveBorrowsByBook(bookId: string): Promise<number> {
+        try {
+            const [rows] = await pool.execute<RowDataPacket[]>(
+                "SELECT COUNT(*) as count FROM transactions WHERE bookId = ? AND status = 'ISSUED'",
+                [bookId]
+            );
+            return rows[0].count || 0;
+        } catch (error) {
+            console.log("Error counting active borrows for book:", error);
+            return 0;
+        }
+    }
+
+    async CountActiveBorrowsByStudent(studentReg: string): Promise<number> {
+        try {
+            const [rows] = await pool.execute<RowDataPacket[]>(
+                "SELECT COUNT(*) as count FROM transactions WHERE studentReg = ? AND status IN ('ISSUED', 'OVERDUE')",
+                [studentReg]
+            );
+            return rows[0].count || 0;
+        } catch (error) {
+            console.log("Error counting active borrows for student:", error);
+            return 0;
         }
     }
 }

@@ -20,10 +20,10 @@ export class MySQLStudentRepository implements IStudentRepository {
       Password: data.Password || "",
       qrCode: data.qrCode
     };
- console.log(student);
+// console.log(student);
     const query = `
-      INSERT INTO students (id, Name, Roll, Registration, Department, Session, ContactNumber, Address, Email, Password, qrCode)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO students (id, Name, Roll, Registration, Department, Session, ContactNumber, Address, Email, Password, qrCode, PhotoUrl)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await pool.execute(query, [
@@ -37,7 +37,8 @@ export class MySQLStudentRepository implements IStudentRepository {
       student.Address,
       student.Email,
       student.Password,
-      student.qrCode || null
+      student.qrCode || null,
+      (data.PhotoUrl as string) || null
     ]);
 
     return student;
@@ -69,7 +70,7 @@ export class MySQLStudentRepository implements IStudentRepository {
     queryParams.push(String(params.limit) , String(offset) );
 console.log(typeof(params.limit));
     const [rows] = await pool.execute<RowDataPacket[]>(query, queryParams);
-    console.log(rows);
+    //console.log(rows);
 
     const students = rows.map(row => this.mapRowToStudent(row));
 
@@ -81,7 +82,7 @@ console.log(typeof(params.limit));
     try{const query = 'SELECT * FROM students WHERE Roll = ? OR Registration = ? OR id = ? OR Email = ?';
     console.log('🔍 findById called with:', id, 'Type:', typeof id);
     const value = id.toString();
-    console.log(id);
+   // console.log(id);
     const [rows] = await pool.execute<RowDataPacket[]>(query, [value, value, value, value]);
 
 
@@ -99,6 +100,15 @@ console.log(typeof(params.limit));
   async findByQRCode(qrCode: string): Promise<Student | null> {
     const query = 'SELECT * FROM students WHERE qrCode = ?';
     const [rows] = await pool.execute<RowDataPacket[]>(query, [qrCode]);
+    
+    if (rows.length === 0) return null;
+    
+    return this.mapRowToStudent(rows[0]);
+  }
+
+  async findByRegistration(registration: string): Promise<Student | null> {
+    const query = 'SELECT * FROM students WHERE Registration = ?';
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [registration]);
     
     if (rows.length === 0) return null;
     
@@ -183,7 +193,8 @@ console.log(typeof(params.limit));
       ContactNumber: row.ContactNumber,
       Address: row.Address,
       Email: row.Email,
-      qrCode: row.qrCode
+      qrCode: row.qrCode,
+      PhotoUrl: row.PhotoUrl
     };
     
     if (includePassword) {

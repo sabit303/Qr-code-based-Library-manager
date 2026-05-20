@@ -1,130 +1,83 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 import { LibrarianService } from "../Services/LibrarianService.js";
 import { CreateLibrarianDTO, UpdateLibrarianDTO } from "../DTOs/LibrarianDTO.js";
+import { NotFoundError } from "../errors/AppError.js";
+import { asyncHandler } from "../middlewares/errorHandler.js";
 
 export class LibrarianController {
     constructor(private librarianService: LibrarianService) {}
 
-    async create(req: Request, res: Response): Promise<Response> {
-        try {
-            const dto: CreateLibrarianDTO = req.body;
-            const librarian = await this.librarianService.create(dto);
-            const { password, ...librarianWithoutPassword } = librarian;
-            return res.status(201).json({
-                success: true,
-                data: librarianWithoutPassword,
-                message: "Librarian created successfully"
-            });
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: "Error creating librarian",
-                error: error instanceof Error ? error.message : "Unknown error"
-            });
+    create = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const dto: CreateLibrarianDTO = req.body;
+        const librarian = await this.librarianService.create(dto);
+        const { password, ...librarianWithoutPassword } = librarian;
+        res.status(201).json({
+            success: true,
+            data: librarianWithoutPassword,
+            message: "Librarian created successfully"
+        });
+    });
+
+    getAll = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const { page = 1, limit = 10, search } = req.query;
+        const result = await this.librarianService.getAll({
+            page: Number(page),
+            limit: Number(limit),
+            search: search as string
+        });
+        res.status(200).json({
+            success: true,
+            data: result
+        });
+    });
+
+    getById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.params;
+        const userId = req.user?.id;
+        const userRole = req.user?.role;
+        
+        const librarian = await this.librarianService.getById(id, userId, userRole);
+        
+        if (!librarian) {
+            throw new NotFoundError("Librarian not found");
         }
-    }
 
-    async getAll(req: Request, res: Response): Promise<Response> {
-        try {
-            const { page = 1, limit = 10, search } = req.query;
-            const result = await this.librarianService.getAll({
-                page: Number(page),
-                limit: Number(limit),
-                search: search as string
-            });
-            return res.status(200).json({
-                success: true,
-                data: result
-            });
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: "Error fetching librarians",
-                error: error instanceof Error ? error.message : "Unknown error"
-            });
+        res.status(200).json({
+            success: true,
+            data: librarian
+        });
+    });
+
+    update = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.params;
+        const dto: UpdateLibrarianDTO = req.body;
+        const userId = req.user?.id;
+        const userRole = req.user?.role;
+        
+        const librarian = await this.librarianService.update(id, dto, userId, userRole);
+        
+        if (!librarian) {
+            throw new NotFoundError("Librarian not found");
         }
-    }
 
-    async getById(req: Request, res: Response): Promise<Response> {
-        try {
-            const { id } = req.params;
-            const userId = req.user?.id;
-            const userRole = req.user?.role;
-            
-            const librarian = await this.librarianService.getById(id, userId, userRole);
-            
-            if (!librarian) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Librarian not found"
-                });
-            }
+        res.status(200).json({
+            success: true,
+            data: librarian,
+            message: "Librarian updated successfully"
+        });
+    });
 
-            return res.status(200).json({
-                success: true,
-                data: librarian
-            });
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: "Error fetching librarian",
-                error: error instanceof Error ? error.message : "Unknown error"
-            });
+    delete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.params;
+        const deleted = await this.librarianService.delete(id);
+        
+        if (!deleted) {
+            throw new NotFoundError("Librarian not found");
         }
-    }
 
-    async update(req: Request, res: Response): Promise<Response> {
-        try {
-            const { id } = req.params;
-            const dto: UpdateLibrarianDTO = req.body;
-            const userId = req.user?.id;
-            const userRole = req.user?.role;
-            
-            const librarian = await this.librarianService.update(id, dto, userId, userRole);
-            
-            if (!librarian) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Librarian not found"
-                });
-            }
-
-            return res.status(200).json({
-                success: true,
-                data: librarian,
-                message: "Librarian updated successfully"
-            });
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: "Error updating librarian",
-                error: error instanceof Error ? error.message : "Unknown error"
-            });
-        }
-    }
-
-    async delete(req: Request, res: Response): Promise<Response> {
-        try {
-            const { id } = req.params;
-            const deleted = await this.librarianService.delete(id);
-            
-            if (!deleted) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Librarian not found"
-                });
-            }
-
-            return res.status(200).json({
-                success: true,
-                message: "Librarian deleted successfully"
-            });
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: "Error deleting librarian",
-                error: error instanceof Error ? error.message : "Unknown error"
-            });
-        }
-    }
+        res.status(200).json({
+            success: true,
+            message: "Librarian deleted successfully"
+        });
+    });
 }

@@ -14,6 +14,7 @@ export class MySQLBookRepository implements IBookRepository {
             AuthorName: row.authorName,
             Edition: row.edition,
             Genre: row.genre,
+            CoverUrl: row.coverUrl,
             TotalCopies: row.totalCopies,
             AvailableCopies: row.availableCopies,
         });
@@ -24,18 +25,19 @@ export class MySQLBookRepository implements IBookRepository {
         const id = uuidv4();
 
         const query = `
-            INSERT INTO books (id, name, authorName, edition, genre, totalCopies, availableCopies)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO books (id, name, authorName, edition, genre, totalCopies, availableCopies, coverUrl)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await pool.execute(query, [
             id,
             data.Name,
             data.AuthorName,
-            data.Edition,
-            data.Genre,
+            data.Edition || null,
+            data.Genre || null,
             data.TotalCopies,
-            data.AvailableCopies
+            data.AvailableCopies || null,
+            data.CoverUrl || null
         ]);
 
         return new Book({
@@ -44,6 +46,7 @@ export class MySQLBookRepository implements IBookRepository {
             AuthorName: data.AuthorName!,
             Edition: data.Edition!,
             Genre: data.Genre!,
+            CoverUrl: data.CoverUrl!,
             TotalCopies: data.TotalCopies!,
             AvailableCopies: data.AvailableCopies!,
         });

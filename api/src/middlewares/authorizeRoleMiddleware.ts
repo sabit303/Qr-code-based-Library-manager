@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { UnauthorizedError, ForbiddenError } from "../errors/AppError.js";
 
 export class AuthorizeRole {
   canAccess(...allowedRoles: string[]) {
@@ -6,16 +7,12 @@ export class AuthorizeRole {
       
       // 1️⃣ Must be authenticated first
       if (!req.user) {
-        return res.status(401).json({
-          msg: "Unauthenticated"
-        });
+        throw new UnauthorizedError("Authentication required");
       }
 
       // 2️⃣ Role check
       if (!req.user.role || !allowedRoles.includes(req.user.role)) {
-        return res.status(403).json({
-          msg: "Forbidden role"
-        });
+        throw new ForbiddenError(`Access denied. Required roles: ${allowedRoles.join(', ')}`);
       }
 
       // 3️⃣ Allowed

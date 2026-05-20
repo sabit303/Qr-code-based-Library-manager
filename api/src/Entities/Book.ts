@@ -6,6 +6,7 @@ export class Book{
     AuthorName: String;
     Edition?: String;
     Genre?: String;
+    CoverUrl?: String;
     TotalCopies: Number;
     AvailableCopies: Number
 
@@ -15,6 +16,7 @@ export class Book{
         this.AuthorName = data.AuthorName || "";
         this.Edition = data.Edition||"";
         this.Genre = data.Genre||"";
+        this.CoverUrl = data.CoverUrl || "";
         this.TotalCopies = data.TotalCopies || 0;
         this.AvailableCopies = data.AvailableCopies ?? data.TotalCopies ?? 0;
      

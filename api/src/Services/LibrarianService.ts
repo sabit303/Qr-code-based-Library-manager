@@ -2,6 +2,7 @@ import { ILibrarianRepository } from "../Interfaces/ILibrarianRepository.js";
 import { CreateLibrarianDTO, UpdateLibrarianDTO } from "../DTOs/LibrarianDTO.js";
 import { Librarian } from "../Entities/Librarian.js";
 import { PasswordHasher } from "../Helper/passHash.js";
+import { ForbiddenError } from "../errors/AppError.js";
 
 export class LibrarianService {
   constructor(
@@ -30,7 +31,7 @@ export class LibrarianService {
   async getById(id: string, userId?: string, userRole?: string): Promise<Librarian | null> {
     // Ownership check: users can only view their own profile
     if (userId && id !== userId) {
-      throw new Error("You can only view your own profile");
+      throw new ForbiddenError("You can only view your own profile");
     }
     return this.librarianRepository.findById(id);
   }
@@ -38,7 +39,7 @@ export class LibrarianService {
   async update(id: string, dto: UpdateLibrarianDTO, userId?: string, userRole?: string): Promise<Librarian | null> {
     // Ownership check: users can only update their own profile
     if (userId && id !== userId) {
-      throw new Error("You can only update your own profile");
+      throw new ForbiddenError("You can only update your own profile");
     }
     
     // If password is being updated, hash it

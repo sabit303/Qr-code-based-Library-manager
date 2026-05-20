@@ -4,6 +4,7 @@
       "module": "NodeNext",                        // Node ESM compatibility
       "moduleResolution": "NodeNext",
       "lib": ["ESNext","DOM"],
+      "rootDir": "./src",                          // specify the root directory of source files
       "outDir": "./dist",                          // or whatever output folder you want
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,

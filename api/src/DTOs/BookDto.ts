@@ -5,6 +5,7 @@ export interface AddNewBookDTO {
     Genre?: string;
     TotalCopies: number;
     AvailableCopies?: number;
+    CoverUrl?: string;
 }
 
 export interface UpdateBookDTO {
@@ -14,9 +15,10 @@ export interface UpdateBookDTO {
     Genre?: string;
     TotalCopies?: number;
     AvailableCopies?: number;
+    CoverUrl?: string;
 }
 
-export interface RequestNewBookDTO{
+export interface RequestNewBookDTO {
     bookID: string,
     StudentReg: string
 }

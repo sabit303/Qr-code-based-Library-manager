@@ -8,6 +8,7 @@ export interface CreateStudentDTO {
   Address: string;
   Email: string;
   Password: string;
+  PhotoUrl?: string;
 }
 
 export interface UpdateStudentDTO {
@@ -20,4 +21,5 @@ export interface UpdateStudentDTO {
   Address?: string;
   Email?: string;
   Password?: string;
+  PhotoUrl?: string;
 }

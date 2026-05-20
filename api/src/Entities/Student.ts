@@ -10,4 +10,5 @@ export class Student {
     Email: string;
     Password?: string;
     qrCode?: string;
+    PhotoUrl?: string;
 }

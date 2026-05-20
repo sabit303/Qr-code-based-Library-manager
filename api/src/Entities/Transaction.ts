@@ -9,6 +9,9 @@ export class Transaction {
     CreatedAt?: Date;
     status: 'ISSUED' | 'RETURNED' | 'OVERDUE' | 'REQUESTED';
     lateFee?: number;
+    studentName?: string;
+    bookTitle?: string;
+    bookAuthor?: string;
 
     constructor(data: Partial<Transaction>) {
         this.id = data.id;
@@ -21,5 +24,8 @@ export class Transaction {
         this.CreatedAt = data.CreatedAt ? new Date(data.CreatedAt) : new Date();
         this.status = data.status || 'REQUESTED';
         this.lateFee = data.lateFee || 0;
+        this.studentName = data.studentName;
+        this.bookTitle = data.bookTitle;
+        this.bookAuthor = data.bookAuthor;
     }
 } 
