@@ -8,4 +8,5 @@ export interface IBorrowRepository{
     ReturnBorrowedBook(BookId: String, StudentReg: string): Promise<Partial<Transaction>|null>;
     CountActiveBorrowsByBook(bookId: string): Promise<number>;
     CountActiveBorrowsByStudent(studentReg: string): Promise<number>;
+    GetNextAvailableDateForBook(bookId: string): Promise<Date | null>;
 }

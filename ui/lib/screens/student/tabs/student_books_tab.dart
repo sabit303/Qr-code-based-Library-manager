@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/book_provider.dart';
 import '../../../data/models/book_model.dart';
+import '../../../data/services/book_service.dart';
 import '../../../widgets/common_widgets.dart';
 import '../../../widgets/image_preview_dialog.dart';
 
@@ -253,15 +255,52 @@ class _StudentBooksTabState extends State<StudentBooksTab> {
                       : AppColors.error.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  book.isAvailable ? '✓ ${book.availableCopies}' : '✗',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: book.isAvailable
-                        ? AppColors.success
-                        : AppColors.error,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: FutureBuilder<Map<String, dynamic>>(
+                  future: book.isAvailable
+                      ? null
+                      : BookService(context.read<AuthProvider>().user!.token)
+                          .getAvailability(book.id),
+                  builder: (context, snapshot) {
+                    if (book.isAvailable) {
+                      return Text(
+                        '✓ ${book.availableCopies}',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: AppColors.success,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    }
+
+                    if (snapshot.hasData) {
+                      final nextDate =
+                          snapshot.data!['nextAvailableDate'];
+                      if (nextDate != null) {
+                        final date = DateTime.parse(nextDate);
+                        final formatted =
+                            DateFormat('MMM d').format(date);
+                        return Text(
+                          'Available $formatted',
+                          style: GoogleFonts.inter(
+                            fontSize: 9,
+                            color: AppColors.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      }
+                    }
+
+                    return Text(
+                      '✗',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

@@ -95,4 +95,15 @@ class BookService {
       throw Exception(data['message'] ?? 'Failed to delete book');
     }
   }
+
+  Future<Map<String, dynamic>> getAvailability(String id) async {
+    final response = await http.get(
+        Uri.parse(ApiConstants.bookAvailability(id)),
+        headers: _headers);
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200 && data['success'] == true) {
+      return data['data'];
+    }
+    throw Exception(data['message'] ?? 'Failed to fetch availability');
+  }
 }

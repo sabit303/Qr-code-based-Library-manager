@@ -9,6 +9,7 @@ class ApiConstants {
   static const String books = '$apiUrl/books';
   static String bookById(String id) => '$apiUrl/books/$id';
   static String bookByQrCode(String qr) => '$apiUrl/books/qr/$qr';
+  static String bookAvailability(String id) => '$apiUrl/books/availability/$id';
 
   // Students
   static const String students = '$apiUrl/students';

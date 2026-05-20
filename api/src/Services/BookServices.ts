@@ -104,4 +104,22 @@ export class BookServices {
 
         return this.bookRepository.update(id, dto);
     }
+
+    async getNextAvailableDate(id: string): Promise<{ nextAvailableDate: Date | null; isAvailable: boolean }> {
+        const book = await this.bookRepository.getById(id);
+        if (!book) throw new NotFoundError("Book not found");
+
+        // If copies are available, it's available now
+        if (book.AvailableCopies > 0) {
+            return { nextAvailableDate: null, isAvailable: true };
+        }
+
+        // All copies borrowed, find the earliest return date
+        if (this.borrowRepository) {
+            const nextDate = await this.borrowRepository.GetNextAvailableDateForBook(id);
+            return { nextAvailableDate: nextDate, isAvailable: false };
+        }
+
+        return { nextAvailableDate: null, isAvailable: false };
+    }
 }

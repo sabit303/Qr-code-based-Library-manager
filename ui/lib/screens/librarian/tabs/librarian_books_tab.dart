@@ -13,6 +13,7 @@ import '../../../data/providers/book_provider.dart';
 import '../../../data/models/book_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/services/borrow_service.dart';
+import '../../../data/services/book_service.dart';
 import '../../../widgets/common_widgets.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:ui' as ui;
@@ -217,10 +218,33 @@ class _LibrarianBooksTabState extends State<LibrarianBooksTab> {
                 style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary)),
             const SizedBox(height: 4),
             Row(children: [
-              StatusBadge(
-                label: book.isAvailable ? '${book.availableCopies}/${book.totalCopies} avail.' : 'Unavailable',
-                color: book.isAvailable ? AppColors.success : AppColors.error,
-              ),
+              if (book.isAvailable)
+                StatusBadge(
+                  label: '${book.availableCopies}/${book.totalCopies} avail.',
+                  color: AppColors.success,
+                )
+              else
+                FutureBuilder<Map<String, dynamic>>(
+                  future: BookService(context.read<AuthProvider>().user!.token)
+                      .getAvailability(book.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final nextDate = snapshot.data!['nextAvailableDate'];
+                      if (nextDate != null) {
+                        final date = DateTime.parse(nextDate);
+                        final formatted = DateFormat('MMM d').format(date);
+                        return StatusBadge(
+                          label: 'Back on $formatted',
+                          color: AppColors.error,
+                        );
+                      }
+                    }
+                    return StatusBadge(
+                      label: 'Unavailable',
+                      color: AppColors.error,
+                    );
+                  },
+                ),
               if (book.category != null) ...[
                 const SizedBox(width: 6),
                 StatusBadge(label: book.category!, color: AppColors.primary),

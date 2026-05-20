@@ -184,4 +184,20 @@ export class MySQLTransactionRepository implements IBorrowRepository {
             return 0;
         }
     }
+
+    async GetNextAvailableDateForBook(bookId: string): Promise<Date | null> {
+        try {
+            const [rows] = await pool.execute<RowDataPacket[]>(
+                "SELECT dueDate FROM transactions WHERE bookId = ? AND status IN ('ISSUED', 'OVERDUE') ORDER BY dueDate ASC LIMIT 1",
+                [bookId]
+            );
+            if (rows.length > 0 && rows[0].dueDate) {
+                return new Date(rows[0].dueDate);
+            }
+            return null;
+        } catch (error) {
+            console.log("Error getting next available date for book:", error);
+            return null;
+        }
+    }
 }

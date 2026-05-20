@@ -98,6 +98,16 @@ export class BookController {
         });
     });
 
+    getNextAvailableDate = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.params;
+        const result = await this.bookService.getNextAvailableDate(id);
+
+        res.status(200).json({
+            success: true,
+            data: result
+        });
+    });
+
     displayBookDetails = asyncHandler(async (req: Request, res: Response): Promise<void> => {
         const { id } = req.params;
         const book = await this.bookService.displayBookDetails(id);

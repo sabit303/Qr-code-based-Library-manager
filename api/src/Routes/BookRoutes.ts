@@ -25,6 +25,7 @@ router.get("/", authMiddleware, roleAuthorizer.canAccess("librarian", "student")
 router.get("/search", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res, next) => bookController.search(req, res, next));
 router.get("/qr/:qrCode", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res, next) => bookController.getByQRCode(req, res, next));
 router.get("/details/:id", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res, next) => bookController.displayBookDetails(req, res, next));
+router.get("/availability/:id", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res, next) => bookController.getNextAvailableDate(req, res, next));
 router.get("/:id", authMiddleware, roleAuthorizer.canAccess("librarian", "student"), (req, res, next) => bookController.getById(req, res, next));
 
 export default router;
