@@ -1,0 +1,48 @@
+name: Deploy API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
+          -u ${{ github.actor }} --password-stdin
+
+      - name: Build API image
+        run: |
+          docker build \
+          -t ghcr.io/${{ github.repository_owner }}/Qr-code-based-Library-manager-api:latest \
+          ./api
+
+      - name: Push API image
+        run: |
+          docker push \
+          ghcr.io/${{ github.repository_owner }}/Qr-code-based-Library-manager-api:latest
+
+      - name: Deploy to VPS (FULL AUTO)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+
+          script: |
+            cd ~/library
+
+            docker pull ghcr.io/${{ github.repository_owner }}/Qr-code-based-Library-manager-api:latest
+
+            docker compose up -d --remove-orphans
