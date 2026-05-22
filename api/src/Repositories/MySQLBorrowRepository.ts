@@ -39,6 +39,21 @@ export class MySQLTransactionRepository implements IBorrowRepository {
             const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?", [BookId]);
             const updatedcopies = book[0].availableCopies - 1;
             const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?", [updatedcopies, BookId]);
+
+            const [requestRows] = await pool.execute<RowDataPacket[]>(
+                `SELECT id
+                 FROM transactions
+                 WHERE studentReg = ? AND bookId = ? AND status = 'REQUESTED'
+                 ORDER BY createdAt DESC, id DESC
+                 LIMIT 1`,
+                [StudentReg, BookId]
+            );
+
+            if (requestRows.length === 0) {
+                return null;
+            }
+
+            const transactionId = requestRows[0].id;
             
             let updateQuery = `UPDATE transactions SET status = 'ISSUED', borrowedDate = NOW()`;
             const params: any[] = [];
@@ -48,13 +63,13 @@ export class MySQLTransactionRepository implements IBorrowRepository {
                 params.push(new Date(returnDate));
             }
             
-            updateQuery += ` WHERE studentReg = ? AND bookId = ?`;
-            params.push(StudentReg, BookId);
+            updateQuery += ` WHERE id = ?`;
+            params.push(transactionId);
             
             const [transaction] = await pool.execute<ResultSetHeader>(updateQuery, params);
             const [insertedRow] = await pool.execute<RowDataPacket[]>(
-                "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ?",
-                [StudentReg, BookId]
+                "SELECT * FROM transactions WHERE id = ?",
+                [transactionId]
             );
             console.log(insertedRow[0]);
             return {
@@ -134,11 +149,27 @@ export class MySQLTransactionRepository implements IBorrowRepository {
             const updatedCopies = book[0].availableCopies + 1;
             const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?", [updatedCopies, BookId]);
             const connection = await pool.getConnection();
-            await connection.execute(`UPDATE transactions SET returnDate = NOW(), status = 'RETURNED' WHERE studentReg = ? AND bookId = ?`, [StudentReg, BookId])
-            const [transaction] = await connection.execute<RowDataPacket[]>(
-                `SELECT id, bookId, studentReg, status, returnDate FROM transactions WHERE studentReg = ? AND bookId = ?`,
+            const [activeRows] = await connection.execute<RowDataPacket[]>(
+                `SELECT id
+                 FROM transactions
+                 WHERE studentReg = ? AND bookId = ? AND status IN ('ISSUED', 'OVERDUE')
+                 ORDER BY borrowedDate DESC, createdAt DESC, id DESC
+                 LIMIT 1`,
                 [StudentReg, BookId]
             );
+
+            if (activeRows.length === 0) {
+                connection.release();
+                return null;
+            }
+
+            const transactionId = activeRows[0].id;
+            await connection.execute(`UPDATE transactions SET returnDate = NOW(), status = 'RETURNED' WHERE id = ?`, [transactionId])
+            const [transaction] = await connection.execute<RowDataPacket[]>(
+                `SELECT id, bookId, studentReg, status, returnDate FROM transactions WHERE id = ?`,
+                [transactionId]
+            );
+            connection.release();
             return transaction as Partial<Transaction>;
         } catch (e) {
             console.log("Error in transaction");
