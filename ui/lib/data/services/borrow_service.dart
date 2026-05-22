@@ -15,6 +15,15 @@ class BorrowService {
     return null;
   }
 
+  TransactionModel _transactionFromPayload(dynamic payload) {
+    final raw = payload is List && payload.isNotEmpty ? payload.first : payload;
+    final transactionJson = _asMap(raw);
+    if (transactionJson == null) {
+      throw Exception('Invalid transaction response from server');
+    }
+    return TransactionModel.fromJson(transactionJson);
+  }
+
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -30,7 +39,7 @@ class BorrowService {
     final data = jsonDecode(response.body);
     if ((response.statusCode == 200 || response.statusCode == 201) &&
         data['success'] == true) {
-      return TransactionModel.fromJson(data['data']);
+      return _transactionFromPayload(data['data']);
     }
     throw Exception(data['message'] ?? 'Failed to request book');
   }
@@ -48,7 +57,7 @@ class BorrowService {
     );
     final data = jsonDecode(response.body);
     if (response.statusCode == 200 && data['success'] == true) {
-      return TransactionModel.fromJson(data['data']);
+      return _transactionFromPayload(data['data']);
     }
     throw Exception(data['message'] ?? 'Failed to confirm book');
   }
@@ -63,7 +72,7 @@ class BorrowService {
     final data = jsonDecode(response.body);
     if ((response.statusCode == 200 || response.statusCode == 201) &&
         data['success'] == true) {
-      return TransactionModel.fromJson(data['data']);
+      return _transactionFromPayload(data['data']);
     }
     throw Exception(data['message'] ?? 'Failed to return book');
   }

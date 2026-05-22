@@ -93,8 +93,11 @@ export class borrowService {
         throw new ForbiddenError("You can only return your own books");
       }
 
-      if (this.studentservice.getById(dto.StudentReg) != null && this.bookservice.getById(dto.bookID) != null) {
-        const transactionDetails = this.transactionRepo.ReturnBorrowedBook(dto.bookID, dto.StudentReg);
+      const student = await this.studentservice.getById(dto.StudentReg);
+      const book = await this.bookservice.getById(dto.bookID);
+
+      if (student && book) {
+        const transactionDetails = await this.transactionRepo.ReturnBorrowedBook(dto.bookID, dto.StudentReg);
         return transactionDetails;
       } else {
         throw new NotFoundError("Book or Student not exist");

@@ -143,12 +143,9 @@ export class MySQLTransactionRepository implements IBorrowRepository {
         }
     }
 
-    async ReturnBorrowedBook(BookId: String, StudentReg: string): Promise<Partial<Transaction | null>> {
+    async ReturnBorrowedBook(BookId: string, StudentReg: string): Promise<Partial<Transaction> | null> {
+        const connection = await pool.getConnection();
         try {
-            const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?", [BookId]);
-            const updatedCopies = book[0].availableCopies + 1;
-            const [result] = await pool.execute<RowDataPacket[]>("UPDATE books SET availableCopies = ? WHERE id = ?", [updatedCopies, BookId]);
-            const connection = await pool.getConnection();
             const [activeRows] = await connection.execute<RowDataPacket[]>(
                 `SELECT id
                  FROM transactions
@@ -159,21 +156,30 @@ export class MySQLTransactionRepository implements IBorrowRepository {
             );
 
             if (activeRows.length === 0) {
-                connection.release();
                 return null;
             }
 
             const transactionId = activeRows[0].id;
-            await connection.execute(`UPDATE transactions SET returnDate = NOW(), status = 'RETURNED' WHERE id = ?`, [transactionId])
-            const [transaction] = await connection.execute<RowDataPacket[]>(
-                `SELECT id, bookId, studentReg, status, returnDate FROM transactions WHERE id = ?`,
+            await connection.execute(
+                "UPDATE books SET availableCopies = availableCopies + 1 WHERE id = ?",
+                [BookId]
+            );
+            await connection.execute(
+                `UPDATE transactions SET returnDate = NOW(), status = 'RETURNED' WHERE id = ?`,
                 [transactionId]
             );
-            connection.release();
-            return transaction as Partial<Transaction>;
+            const [transaction] = await connection.execute<RowDataPacket[]>(
+                `SELECT id, bookId, studentReg, status, borrowedDate, dueDate, returnDate
+                 FROM transactions
+                 WHERE id = ?`,
+                [transactionId]
+            );
+            return transaction[0] as Partial<Transaction>;
         } catch (e) {
             console.log("Error in transaction");
             return null;
+        } finally {
+            connection.release();
         }
     }
 
