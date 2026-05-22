@@ -154,13 +154,41 @@ export class MySQLBookRepository implements IBookRepository {
     }
 
     async update(id: string, data: Partial<Book>): Promise<Book | null> {
-        const fields = Object.keys(data);
-        if (fields.length === 0) return this.getById(id);
+        const updates: string[] = [];
+        const values: any[] = [];
 
-        const updates = fields.map(field => `${field} = ?`).join(", ");
-        const values = fields.map(field => (data as any)[field]);
+        if (data.Name !== undefined) {
+            updates.push("name = ?");
+            values.push(data.Name);
+        }
+        if (data.AuthorName !== undefined) {
+            updates.push("authorName = ?");
+            values.push(data.AuthorName);
+        }
+        if (data.Edition !== undefined) {
+            updates.push("edition = ?");
+            values.push(data.Edition);
+        }
+        if (data.Genre !== undefined) {
+            updates.push("genre = ?");
+            values.push(data.Genre);
+        }
+        if (data.TotalCopies !== undefined) {
+            updates.push("totalCopies = ?");
+            values.push(data.TotalCopies);
+        }
+        if (data.AvailableCopies !== undefined) {
+            updates.push("availableCopies = ?");
+            values.push(data.AvailableCopies);
+        }
+        if (data.CoverUrl !== undefined) {
+            updates.push("coverUrl = ?");
+            values.push(data.CoverUrl);
+        }
 
-        const query = `UPDATE books SET ${updates} WHERE id = ?`;
+        if (updates.length === 0) return this.getById(id);
+
+        const query = `UPDATE books SET ${updates.join(", ")} WHERE id = ?`;
 
         const [result] = await pool.execute<ResultSetHeader>(query, [
             ...values,

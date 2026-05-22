@@ -15,6 +15,11 @@ class AuthService {
       body: jsonEncode({'email': email, 'password': password, 'role': role}),
     );
 
+    // Handle empty response body
+    if (response.body.isEmpty) {
+      throw Exception('Empty response from server. Status: ${response.statusCode}');
+    }
+
     final data = jsonDecode(response.body);
 
     if (response.statusCode == 200 && data['success'] == true) {
@@ -39,7 +44,7 @@ class AuthService {
       return user;
     }
 
-    throw Exception(data['msg'] ?? data['message'] ?? 'Login failed');
+    throw Exception(data['msg'] ?? data['message'] ?? 'Login failed (Status: ${response.statusCode})');
   }
 
   Future<void> _saveSession(UserModel user) async {

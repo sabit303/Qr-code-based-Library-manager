@@ -13,13 +13,15 @@ export class StudentController {
     // If client sent a base64 photo (e.g., from camera), upload to Cloudflare
     if ((req.body as any).photoBase64) {
       try {
+        console.log("📸 Attempting to upload student photo to Cloudflare R2...");
         const { uploadImageToCloudflare } = await import('../utils/CloudflareImages.js');
         const photoBase64 = (req.body as any).photoBase64 as string;
         const filename = `${dto.Registration || Date.now()}.jpg`;
         const url = await uploadImageToCloudflare(photoBase64, filename);
         dto.PhotoUrl = url;
+        console.log("✅ Photo uploaded successfully:", url);
       } catch (e) {
-        console.error('Photo upload failed:', e);
+        console.error('❌ Photo upload failed:', e);
         dto.PhotoUrl = null as any; // Set to null on error so student can still be created
       }
     }
@@ -78,6 +80,22 @@ export class StudentController {
     const dto: UpdateStudentDTO = req.body;
     const userId = req.user?.id;
     const userRole = req.user?.role;
+
+    // If client sent a base64 photo (e.g., from camera), upload to Cloudflare
+    if ((req.body as any).photoBase64) {
+      try {
+        console.log("📸 Attempting to upload student photo to Cloudflare R2 (update)...");
+        const { uploadImageToCloudflare } = await import('../utils/CloudflareImages.js');
+        const photoBase64 = (req.body as any).photoBase64 as string;
+        const filename = `${dto.Name || Date.now()}.jpg`;
+        const url = await uploadImageToCloudflare(photoBase64, filename);
+        dto.PhotoUrl = url;
+        console.log("✅ Photo uploaded successfully (update):", url);
+      } catch (e) {
+        console.error('❌ Photo upload failed (update):', e);
+        dto.PhotoUrl = undefined; // Don't update photo on error
+      }
+    }
     
     const student = await this.studentService.update(id, dto, userId, userRole);
     

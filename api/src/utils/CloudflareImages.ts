@@ -9,6 +9,7 @@ export async function uploadImageToCloudflare(base64: string, filename: string):
   const publicUrl = process.env.CF_R2_PUBLIC_URL;
 
   if (!accountId || !accessKeyId || !secretAccessKey || !bucketName || !publicUrl) {
+    console.log("Cloudflare R2 configuration is missing (CF_R2_ACCOUNT_ID, CF_R2_ACCESS_KEY_ID, CF_R2_SECRET_ACCESS_KEY, CF_R2_BUCKET_NAME, CF_R2_PUBLIC_URL");
     throw new Error('Cloudflare R2 configuration is missing (CF_R2_ACCOUNT_ID, CF_R2_ACCESS_KEY_ID, CF_R2_SECRET_ACCESS_KEY, CF_R2_BUCKET_NAME, CF_R2_PUBLIC_URL)');
   }
 
@@ -34,6 +35,7 @@ export async function uploadImageToCloudflare(base64: string, filename: string):
   });
 
   try {
+    console.log("File upload initialized");
     await client.send(
       new PutObjectCommand({
         Bucket: bucketName,
@@ -44,6 +46,7 @@ export async function uploadImageToCloudflare(base64: string, filename: string):
     );
 
     // Return the public URL to the uploaded file
+    console.log(`${publicUrl}/${filename}`);
     return `${publicUrl}/${filename}`;
   } finally {
     client.destroy();

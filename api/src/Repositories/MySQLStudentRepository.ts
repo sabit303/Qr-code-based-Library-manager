@@ -18,7 +18,8 @@ export class MySQLStudentRepository implements IStudentRepository {
       Address: data.Address || "",
       Email: data.Email || "",
       Password: data.Password || "",
-      qrCode: data.qrCode
+      qrCode: data.qrCode,
+      PhotoUrl: data.PhotoUrl
     };
 // console.log(student);
     const query = `
@@ -38,7 +39,7 @@ export class MySQLStudentRepository implements IStudentRepository {
       student.Email,
       student.Password,
       student.qrCode || null,
-      (data.PhotoUrl as string) || null
+      student.PhotoUrl || null
     ]);
 
     return student;
@@ -159,6 +160,10 @@ console.log(typeof(params.limit));
     if (data.qrCode !== undefined) {
       updates.push('qrCode = ?');
       values.push(data.qrCode);
+    }
+    if (data.PhotoUrl !== undefined) {
+      updates.push('PhotoUrl = ?');
+      values.push(data.PhotoUrl);
     }
 
     if (updates.length === 0) {

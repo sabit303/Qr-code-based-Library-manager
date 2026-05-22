@@ -276,7 +276,12 @@ class _LibrarianStudentsTabState extends State<LibrarianStudentsTab> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('QR generated successfully'), backgroundColor: AppColors.success));
-        _showQrCode(s);
+        // Get the updated student from provider with the new QR code URL
+        final updatedStudent = context.read<StudentProvider>().students.firstWhere(
+          (student) => student.id == s.id,
+          orElse: () => s,
+        );
+        _showQrCode(updatedStudent);
       }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(

@@ -34,6 +34,21 @@ export class BookController {
     updateBook = asyncHandler(async (req: Request, res: Response): Promise<void> => {
         const { id } = req.params;
         const dto: UpdateBookDTO = req.body;
+        // support base64 cover upload on update
+        if ((req.body as any).coverBase64) {
+            try {
+                const { uploadImageToCloudflare } = await import('../utils/CloudflareImages.js');
+                const base64 = (req.body as any).coverBase64 as string;
+                const filename = `${(dto.Name || 'book').replace(/\s+/g, '_')}_${Date.now()}.jpg`;
+                const url = await uploadImageToCloudflare(base64, filename);
+                dto.CoverUrl = url;
+            } catch (e) {
+                console.error('Cover upload failed:', e);
+                dto.CoverUrl = undefined;
+            }
+            // remove raw base64 so it doesn't get passed to repository
+            delete (dto as any).coverBase64;
+        }
         const book = await this.bookService.update(id, dto);
         
         if (!book) {
