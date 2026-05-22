@@ -63,22 +63,28 @@ class _LibrarianBookScannerViewState extends State<LibrarianBookScannerView> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_rounded,
                             color: Colors.white, size: 24),
                         onPressed: () => Navigator.pop(context),
                       ),
-                      Text(
-                        widget.student != null ? 'Issue Book to ${widget.student!.name}' : 'Scan Book QR',
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                      Expanded(
+                        child: Text(
+                          widget.student != null
+                              ? 'Issue Book to ${widget.student!.name}'
+                              : 'Scan Book QR',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                      SizedBox(width: 40),
+                      const SizedBox(width: 48),
                     ],
                   ),
                 ),

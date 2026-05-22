@@ -1,6 +1,6 @@
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:3000';
- // static const String baseUrl = 'https://sabit.me';
+  //static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://sabit.me';
 
   static const String apiUrl = '$baseUrl/api';
 

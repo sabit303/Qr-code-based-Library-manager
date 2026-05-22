@@ -58,6 +58,18 @@ class _StudentScannerViewState extends State<StudentScannerView> {
   Future<void> _showBookDetailsDialog(BookModel book) async {
     final user = context.read<AuthProvider>().user!;
     bool requesting = false;
+    bool alreadyRequestedOrIssued = false;
+
+    // Pre-fetch transactions to disable duplicate requests on the client
+    try {
+      final requested = await BorrowService(user.token).getTransactions('REQUESTED');
+      final issued = await BorrowService(user.token).getTransactions('ISSUED');
+      final combined = [...requested, ...issued];
+      alreadyRequestedOrIssued = combined.any((t) => t.bookId == book.id && (t.studentId == (user.registration ?? user.id) || t.studentRegistration == user.registration));
+    } catch (e) {
+      // ignore errors, server will still enforce uniqueness
+      alreadyRequestedOrIssued = false;
+    }
 
     await showModalBottomSheet(
       context: context,
@@ -186,7 +198,7 @@ class _StudentScannerViewState extends State<StudentScannerView> {
                   width: double.infinity,
                   height: 54,
                   child: ElevatedButton(
-                    onPressed: (book.availableCopies > 0 && !requesting)
+                    onPressed: (book.availableCopies > 0 && !requesting && !alreadyRequestedOrIssued)
                         ? () async {
                             setModalState(() => requesting = true);
                             try {
@@ -218,7 +230,7 @@ class _StudentScannerViewState extends State<StudentScannerView> {
                               }
                             }
                           }
-                        : null,
+                          : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
@@ -231,7 +243,9 @@ class _StudentScannerViewState extends State<StudentScannerView> {
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                           )
                         : Text(
-                            book.availableCopies > 0 ? 'Request to Borrow' : 'Out of Stock',
+                            alreadyRequestedOrIssued
+                                ? 'Already Requested / Issued'
+                                : (book.availableCopies > 0 ? 'Request to Borrow' : 'Out of Stock'),
                             style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
