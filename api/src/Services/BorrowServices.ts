@@ -21,16 +21,24 @@ export class borrowService {
           throw new ForbiddenError("You can only request books for yourself");
         }
       }
-      if (this.studentservice.getById(dto.StudentReg) != null && !this.bookservice.getById(dto.bookID) != null) {
-        const ifRequestedTheSameBook = await this.transactionRepo.GetAllTransactionsByStatus("REQUESTED", dto.StudentReg, dto.bookID);
-        console.log(ifRequestedTheSameBook);
-        if (ifRequestedTheSameBook.length != 0) { throw new ConflictError("Already have a Request for same Book") }
-        const transactionDetails = this.transactionRepo.RequestANewBook(dto.bookID, dto.StudentReg);
-        //console.log(transactionDetails);
-        return transactionDetails;
-      } else {
+      const student = await this.studentservice.getById(dto.StudentReg);
+      const book = await this.bookservice.getById(dto.bookID);
+      if (!student || !book) {
         throw new NotFoundError("Book or Student not exist");
       }
+
+      // Prevent duplicate requests or if already issued to the student
+      const existingRequested = await this.transactionRepo.GetAllTransactionsByStatus("REQUESTED", dto.StudentReg, dto.bookID);
+      if (existingRequested.length > 0) {
+        throw new ConflictError("Already have a Request for same Book");
+      }
+      const existingIssued = await this.transactionRepo.GetAllTransactionsByStatus("ISSUED", dto.StudentReg, dto.bookID);
+      if (existingIssued.length > 0) {
+        throw new ConflictError("Student already has this book issued");
+      }
+
+      const transactionDetails = await this.transactionRepo.RequestANewBook(dto.bookID, dto.StudentReg);
+      return transactionDetails;
     } catch (e) {
       console.log(e);
       throw e;
@@ -39,12 +47,25 @@ export class borrowService {
 
   async confirmBookRequest(dto: RequestNewBookDTO, returnDate?: string): Promise<Partial<Transaction> | null> {
     try {
-      if (this.studentservice.getById(dto.StudentReg) != null && this.bookservice.getById(dto.bookID) != null) {
-        const transactionDetails = this.transactionRepo.ConfirmRequestForBook(dto.bookID, dto.StudentReg, returnDate);
-        return transactionDetails;
-      } else {
+      const student = await this.studentservice.getById(dto.StudentReg);
+      const book = await this.bookservice.getById(dto.bookID);
+      if (!student || !book) {
         throw new NotFoundError("Book or Student not exist");
       }
+
+      // Prevent approving if student already has this book
+      const existingIssued = await this.transactionRepo.GetAllTransactionsByStatus("ISSUED", dto.StudentReg, dto.bookID);
+      if (existingIssued.length > 0) {
+        throw new ConflictError("Student already has this book issued");
+      }
+
+      // Ensure copies available
+      if ((book as any).availableCopies === 0 || (book as any).availableCopies <= 0) {
+        throw new ConflictError("No copies available to issue");
+      }
+
+      const transactionDetails = await this.transactionRepo.ConfirmRequestForBook(dto.bookID, dto.StudentReg, returnDate);
+      return transactionDetails;
     } catch (e) {
       console.log(e);
       throw e;
