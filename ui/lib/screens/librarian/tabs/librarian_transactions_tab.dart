@@ -189,16 +189,6 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
   }
 
   Widget _buildList(List<TransactionModel> items, Color accent, {bool isRequest = false}) {
-    if (items.isEmpty) {
-      return Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(Icons.check_circle_outline, size: 64, color: AppColors.textMuted),
-          const SizedBox(height: 16),
-          Text('No records', style: GoogleFonts.inter(fontSize: 16, color: AppColors.textSecondary)),
-        ]),
-      );
-    }
-    
     final tabIndex = _tabCtrl.index;
     final totalPages = (items.length / _itemsPerPage).ceil();
     final currentPage = _currentPages[tabIndex] ?? 1;
@@ -215,10 +205,26 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
               return _load();
             },
             color: AppColors.accent,
-            child: ListView.builder(
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(20),
-              itemCount: paginatedItems.length,
-              itemBuilder: (_, i) => _buildCard(paginatedItems[i], accent, i, isRequest: isRequest),
+              children: paginatedItems.isEmpty
+                  ? [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.55,
+                        child: Center(
+                          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Icon(Icons.check_circle_outline, size: 64, color: AppColors.textMuted),
+                            const SizedBox(height: 16),
+                            Text('No records', style: GoogleFonts.inter(fontSize: 16, color: AppColors.textSecondary)),
+                          ]),
+                        ),
+                      ),
+                    ]
+                  : List.generate(
+                      paginatedItems.length,
+                      (i) => _buildCard(paginatedItems[i], accent, i, isRequest: isRequest),
+                    ),
             ),
           ),
         ),
@@ -285,14 +291,13 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
                   onTap: () async {
                     final user = context.read<AuthProvider>().user!;
                     try {
-                      final result = await StudentService(user.token).getStudents(search: t.studentId);
-                      final students = result['students'] as List;
-                      if (students.isNotEmpty && mounted) {
+                      final student = await StudentService(user.token).getStudentById(t.studentId);
+                      if (mounted) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => LibrarianStudentDetailScreen(
-                              student: students.first,
+                              student: student,
                               token: user.token,
                             ),
                           ),

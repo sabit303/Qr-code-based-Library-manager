@@ -15,6 +15,13 @@ class StudentProvider extends ChangeNotifier {
   String? get error => _error;
   int get total => _total;
 
+  List<StudentModel> _studentsFromResult(dynamic value) {
+    if (value is Iterable) {
+      return value.whereType<StudentModel>().toList();
+    }
+    return const [];
+  }
+
   Future<void> fetchStudents(String token, {bool refresh = false}) async {
     if (refresh) {
       _currentPage = 1;
@@ -28,7 +35,7 @@ class StudentProvider extends ChangeNotifier {
         page: _currentPage,
         search: _searchQuery.isNotEmpty ? _searchQuery : null,
       );
-      final newStudents = result['students'] as List<StudentModel>;
+      final newStudents = _studentsFromResult(result['students']);
       if (refresh) {
         _students = newStudents;
       } else {

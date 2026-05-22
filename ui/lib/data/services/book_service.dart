@@ -7,6 +7,19 @@ class BookService {
   final String token;
   BookService(this.token);
 
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) {
+      return value.map((key, v) => MapEntry(key.toString(), v));
+    }
+    return null;
+  }
+
+  List<dynamic> _asList(dynamic value) {
+    if (value is Iterable) return value.toList();
+    return const [];
+  }
+
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -27,11 +40,14 @@ class BookService {
     final response = await http.get(uri, headers: _headers);
     final data = jsonDecode(response.body);
     if (response.statusCode == 200 && data['success'] == true) {
-      final booksJson = data['data']['books'] as List;
+      final payload = _asMap(data['data']);
+      final booksJson = _asList(payload?['books']);
       return {
-        'books': booksJson.map((j) => BookModel.fromJson(j)).toList(),
-        'total': data['data']['total'] ?? 0,
-        'page': data['data']['page'] ?? 1,
+        'books': booksJson
+            .map((j) => BookModel.fromJson(_asMap(j) ?? const {}))
+            .toList(),
+        'total': payload?['total'] ?? 0,
+        'page': payload?['page'] ?? 1,
       };
     }
     throw Exception(data['message'] ?? 'Failed to fetch books');

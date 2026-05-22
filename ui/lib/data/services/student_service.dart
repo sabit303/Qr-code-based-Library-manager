@@ -7,6 +7,19 @@ class StudentService {
   final String token;
   StudentService(this.token);
 
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) {
+      return value.map((key, v) => MapEntry(key.toString(), v));
+    }
+    return null;
+  }
+
+  List<dynamic> _asList(dynamic value) {
+    if (value is Iterable) return value.toList();
+    return const [];
+  }
+
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -27,10 +40,12 @@ class StudentService {
     final response = await http.get(uri, headers: _headers);
     final data = jsonDecode(response.body);
     if (response.statusCode == 200 && data['success'] == true) {
-      final studentsJson = data['data']['students'] as List;
+      final studentsJson = _asList(_asMap(data['data'])?['students']);
       return {
-        'students': studentsJson.map((j) => StudentModel.fromJson(j)).toList(),
-        'total': data['data']['total'] ?? 0,
+        'students': studentsJson
+            .map((j) => StudentModel.fromJson(_asMap(j) ?? const {}))
+            .toList(),
+        'total': _asMap(data['data'])?['total'] ?? 0,
       };
     }
     throw Exception(data['message'] ?? 'Failed to fetch students');
@@ -113,7 +128,7 @@ class StudentService {
         headers: _headers);
     final data = jsonDecode(response.body);
     if (response.statusCode == 200 && data['success'] == true) {
-      return data['data'];
+      return _asMap(data['data']) ?? <String, dynamic>{};
     }
     throw Exception(data['message'] ?? 'Failed to fetch student details');
   }

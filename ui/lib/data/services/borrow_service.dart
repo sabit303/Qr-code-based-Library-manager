@@ -7,6 +7,14 @@ class BorrowService {
   final String token;
   BorrowService(this.token);
 
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) {
+      return value.map((key, v) => MapEntry(key.toString(), v));
+    }
+    return null;
+  }
+
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -79,13 +87,17 @@ class BorrowService {
         headers: _headers);
     final data = jsonDecode(response.body);
     if (response.statusCode == 200 && data['success'] == true) {
-      final list = data['data'] as List;
+      final raw = data['data'];
+      final list = raw is Iterable ? raw.toList() : const [];
       return list
           .map((j) {
-            // Ensure proper JSON conversion
-            final jsonMap = jsonDecode(jsonEncode(j)) as Map<String, dynamic>;
+            final jsonMap = _asMap(j);
+            if (jsonMap == null) {
+              return null;
+            }
             return TransactionModel.fromJson(jsonMap);
           })
+          .whereType<TransactionModel>()
           .toList();
     }
     throw Exception(data['message'] ?? 'Failed to fetch transactions');

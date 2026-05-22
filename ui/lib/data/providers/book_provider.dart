@@ -14,6 +14,13 @@ class BookProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   int get total => _total;
+
+  List<BookModel> _booksFromResult(dynamic value) {
+    if (value is Iterable) {
+      return value.whereType<BookModel>().toList();
+    }
+    return const [];
+  }
   bool get hasMore => _books.length < _total;
 
   Future<void> fetchBooks(String token, {bool refresh = false}) async {
@@ -29,7 +36,7 @@ class BookProvider extends ChangeNotifier {
         page: _currentPage,
         search: _searchQuery.isNotEmpty ? _searchQuery : null,
       );
-      final newBooks = result['books'] as List<BookModel>;
+      final newBooks = _booksFromResult(result['books']);
       if (refresh) {
         _books = newBooks;
       } else {
