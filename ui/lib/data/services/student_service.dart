@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/student_model.dart';
 import '../../core/constants/api_constants.dart';
+import '../../core/utils/api_response_utils.dart';
 
 class StudentService {
   final String token;
@@ -38,7 +39,8 @@ class StudentService {
     final uri = Uri.parse(ApiConstants.students)
         .replace(queryParameters: queryParams);
     final response = await http.get(uri, headers: _headers);
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to fetch students');
     if (response.statusCode == 200 && data['success'] == true) {
       final studentsJson = _asList(_asMap(data['data'])?['students']);
       return {
@@ -55,7 +57,8 @@ class StudentService {
     final response = await http.get(
         Uri.parse(ApiConstants.studentById(id)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to fetch student');
     if (response.statusCode == 200 && data['success'] == true) {
       return StudentModel.fromJson(data['data']);
     }
@@ -66,7 +69,8 @@ class StudentService {
     final response = await http.get(
         Uri.parse(ApiConstants.studentByQrCode(qrCode)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Student not found');
     if (response.statusCode == 200 && data['success'] == true) {
       return StudentModel.fromJson(data['data']);
     }
@@ -79,7 +83,8 @@ class StudentService {
       headers: _headers,
       body: jsonEncode(studentData),
     );
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to create student');
     if ((response.statusCode == 200 || response.statusCode == 201) &&
         data['success'] == true) {
       return StudentModel.fromJson(data['data']);
@@ -94,7 +99,8 @@ class StudentService {
       headers: _headers,
       body: jsonEncode(studentData),
     );
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to update student');
     if (response.statusCode == 200 && data['success'] == true) {
       return StudentModel.fromJson(data['data']);
     }
@@ -105,7 +111,8 @@ class StudentService {
     final response = await http.delete(
         Uri.parse(ApiConstants.studentById(id)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to delete student');
     if (response.statusCode != 200 || data['success'] != true) {
       throw Exception(data['message'] ?? 'Failed to delete student');
     }
@@ -115,7 +122,8 @@ class StudentService {
     final response = await http.post(
         Uri.parse(ApiConstants.studentQrCode(id)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to generate QR code');
     if (response.statusCode == 200 && data['success'] == true) {
       return data['data']['qrCode'] as String;
     }
@@ -126,7 +134,8 @@ class StudentService {
     final response = await http.get(
         Uri.parse(ApiConstants.studentScan(registration)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data = decodeApiResponse(response,
+        fallbackMessage: 'Failed to fetch student details');
     if (response.statusCode == 200 && data['success'] == true) {
       return _asMap(data['data']) ?? <String, dynamic>{};
     }

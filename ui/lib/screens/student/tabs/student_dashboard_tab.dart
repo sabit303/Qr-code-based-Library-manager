@@ -174,12 +174,12 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
 
   Widget _buildStats(int borrowed, int overdue, int returned, int pending) {
     return GridView.count(
-      crossAxisCount: 4,
+      crossAxisCount: 2,
       shrinkWrap: true,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
+      crossAxisSpacing: 14,
+      mainAxisSpacing: 14,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 0.76,
+      childAspectRatio: 1.5,
       children: [
         StatCard(
           label: 'Borrowed',

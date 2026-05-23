@@ -4,10 +4,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/image_upload_utils.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/book_provider.dart';
 import '../../../data/models/book_model.dart';
@@ -496,7 +496,9 @@ class _BookFormSheetState extends State<_BookFormSheet> {
 
   @override
   void dispose() {
-    for (final c in [_titleC, _authorC, _isbnC, _catC, _totalC, _availC]) c.dispose();
+    for (final c in [_titleC, _authorC, _isbnC, _catC, _totalC, _availC]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -515,25 +517,29 @@ class _BookFormSheetState extends State<_BookFormSheet> {
       
       // Add cover if selected
       if (_cover != null) {
-        final bytes = await _cover!.readAsBytes();
-        final base64data = 'data:image/jpeg;base64,${base64Encode(bytes)}';
-        data['coverBase64'] = base64data;
+        data['coverBase64'] = await ImageUploadUtils.toDataUrl(_cover!);
       }
       
       await widget.onSave(data);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(e.toString().replaceFirst('Exception: ', '')),
         backgroundColor: AppColors.error,
       ));
+      }
     }
     if (mounted) setState(() => _saving = false);
   }
 
-  Future<void> _pickCover() async {
-    final source = kIsWeb ? ImageSource.gallery : ImageSource.gallery;
-    final img = await _picker.pickImage(source: source, maxWidth: 1200);
+  Future<void> _pickCover(ImageSource source) async {
+    final img = await _picker.pickImage(
+      source: source,
+      maxWidth: ImageUploadUtils.maxImageDimension,
+      maxHeight: ImageUploadUtils.maxImageDimension,
+      imageQuality: ImageUploadUtils.imageQuality,
+    );
     if (img != null) setState(() => _cover = img);
   }
 
@@ -614,16 +620,45 @@ class _BookFormSheetState extends State<_BookFormSheet> {
                     ),
                     const SizedBox(height: 8),
                   ],
-                  ElevatedButton.icon(
-                    onPressed: _pickCover,
-                    icon: const Icon(Icons.image_rounded, size: 18),
-                    label: Text(_cover != null ? 'Change Cover' : 'Select Cover'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary.withOpacity(0.2),
-                      foregroundColor: AppColors.primary,
-                      minimumSize: const Size(double.infinity, 36),
-                    ),
-                  ),
+                  if (kIsWeb)
+                    ElevatedButton.icon(
+                      onPressed: () => _pickCover(ImageSource.gallery),
+                      icon: const Icon(Icons.image_rounded, size: 18),
+                      label: Text(_cover != null ? 'Change Cover' : 'Select Cover'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary.withOpacity(0.2),
+                        foregroundColor: AppColors.primary,
+                        minimumSize: const Size(double.infinity, 36),
+                      ),
+                    )
+                  else
+                    Row(children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _pickCover(ImageSource.gallery),
+                          icon: const Icon(Icons.image_rounded, size: 18),
+                          label: const Text('Gallery'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary.withOpacity(0.2),
+                            foregroundColor: AppColors.primary,
+                            minimumSize: const Size(double.infinity, 36),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _pickCover(ImageSource.camera),
+                          icon: const Icon(Icons.camera_alt_rounded, size: 18),
+                          label: Text(_cover != null ? 'Retake' : 'Take Photo'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary.withOpacity(0.2),
+                            foregroundColor: AppColors.primary,
+                            minimumSize: const Size(double.infinity, 36),
+                          ),
+                        ),
+                      ),
+                    ]),
                 ],
               ),
             ),

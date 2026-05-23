@@ -158,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 28),
             DropdownButtonFormField<String>(
-              value: _selectedRole,
+              initialValue: _selectedRole,
               dropdownColor: AppColors.bgCardLight,
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
@@ -214,8 +214,6 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 28),
             _buildLoginButton(auth),
-            const SizedBox(height: 20),
-            _buildRoleHint(),
           ],
         ),
       ),
@@ -262,28 +260,4 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildRoleHint() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline,
-              color: AppColors.primary, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Access is role-based. Students and Librarians see different dashboards.',
-              style: GoogleFonts.inter(
-                  fontSize: 12, color: AppColors.textSecondary),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -4,10 +4,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/image_upload_utils.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/student_provider.dart';
 import '../../../data/models/student_model.dart';
@@ -284,9 +284,11 @@ class _LibrarianStudentsTabState extends State<LibrarianStudentsTab> {
         _showQrCode(updatedStudent);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')),
             backgroundColor: AppColors.error));
+      }
     }
   }
 
@@ -407,8 +409,10 @@ class _LibrarianStudentsTabState extends State<LibrarianStudentsTab> {
       try {
         final user = context.read<AuthProvider>().user!;
         await context.read<StudentProvider>().deleteStudent(user.token, s.id);
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Student deleted'), backgroundColor: AppColors.success));
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -781,7 +785,9 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
 
   @override
   void dispose() {
-    for (final c in [_nameC, _rollC, _regC, _deptC, _sessC, _emailC, _passwordC, _phoneC, _addrC]) c.dispose();
+    for (final c in [_nameC, _rollC, _regC, _deptC, _sessC, _emailC, _passwordC, _phoneC, _addrC]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -804,25 +810,30 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
       
       // Add photo if selected
       if (_image != null) {
-        final bytes = await _image!.readAsBytes();
-        final base64data = 'data:image/jpeg;base64,${base64Encode(bytes)}';
-        data['photoBase64'] = base64data;
+        data['photoBase64'] = await ImageUploadUtils.toDataUrl(_image!);
       }
       
       await widget.onSave(data);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(e.toString().replaceFirst('Exception: ', '')),
         backgroundColor: AppColors.error,
       ));
+      }
     }
     if (mounted) setState(() => _saving = false);
   }
 
   Future<void> _pickImage() async {
     final source = kIsWeb ? ImageSource.gallery : ImageSource.camera;
-    final img = await _picker.pickImage(source: source, maxWidth: 1200);
+    final img = await _picker.pickImage(
+      source: source,
+      maxWidth: ImageUploadUtils.maxImageDimension,
+      maxHeight: ImageUploadUtils.maxImageDimension,
+      imageQuality: ImageUploadUtils.imageQuality,
+    );
     if (img != null) setState(() => _image = img);
   }
 

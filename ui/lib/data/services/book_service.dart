@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/book_model.dart';
 import '../../core/constants/api_constants.dart';
+import '../../core/utils/api_response_utils.dart';
 
 class BookService {
   final String token;
@@ -38,7 +39,8 @@ class BookService {
     final uri =
         Uri.parse(ApiConstants.books).replace(queryParameters: queryParams);
     final response = await http.get(uri, headers: _headers);
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to fetch books');
     if (response.statusCode == 200 && data['success'] == true) {
       final payload = _asMap(data['data']);
       final booksJson = _asList(payload?['books']);
@@ -57,7 +59,8 @@ class BookService {
     final response = await http.get(
         Uri.parse(ApiConstants.bookById(id)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to fetch book');
     if (response.statusCode == 200 && data['success'] == true) {
       return BookModel.fromJson(data['data']);
     }
@@ -68,7 +71,8 @@ class BookService {
     final response = await http.get(
         Uri.parse(ApiConstants.bookByQrCode(qrCode)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data = decodeApiResponse(response,
+        fallbackMessage: 'Failed to fetch book by QR');
     if (response.statusCode == 200 && data['success'] == true) {
       return BookModel.fromJson(data['data']);
     }
@@ -81,7 +85,8 @@ class BookService {
       headers: _headers,
       body: jsonEncode(bookData),
     );
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to create book');
     if ((response.statusCode == 200 || response.statusCode == 201) &&
         data['success'] == true) {
       return BookModel.fromJson(data['data']);
@@ -95,7 +100,8 @@ class BookService {
       headers: _headers,
       body: jsonEncode(bookData),
     );
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to update book');
     if (response.statusCode == 200 && data['success'] == true) {
       return BookModel.fromJson(data['data']);
     }
@@ -106,7 +112,8 @@ class BookService {
     final response = await http.delete(
         Uri.parse(ApiConstants.bookById(id)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data =
+        decodeApiResponse(response, fallbackMessage: 'Failed to delete book');
     if (response.statusCode != 200 || data['success'] != true) {
       throw Exception(data['message'] ?? 'Failed to delete book');
     }
@@ -116,7 +123,8 @@ class BookService {
     final response = await http.get(
         Uri.parse(ApiConstants.bookAvailability(id)),
         headers: _headers);
-    final data = jsonDecode(response.body);
+    final data = decodeApiResponse(response,
+        fallbackMessage: 'Failed to fetch availability');
     if (response.statusCode == 200 && data['success'] == true) {
       return data['data'];
     }
