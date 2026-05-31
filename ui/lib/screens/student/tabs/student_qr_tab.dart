@@ -33,10 +33,12 @@ class _StudentQrTabState extends State<StudentQrTab> {
       final student = await StudentService(user.token).getStudentById(user.id);
       if (mounted) setState(() { _student = student; _isLoading = false; });
     } catch (e) {
-      if (mounted) setState(() {
+      if (mounted) {
+        setState(() {
         _error = e.toString().replaceFirst('Exception: ', '');
         _isLoading = false;
       });
+      }
     }
   }
 

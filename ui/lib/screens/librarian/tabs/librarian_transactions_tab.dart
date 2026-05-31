@@ -27,7 +27,7 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
   List<TransactionModel> _allTransactions = [];
   bool _isLoading = true;
   static const int _itemsPerPage = 10;
-  Map<int, int> _currentPages = {0: 1, 1: 1, 2: 1}; // Page tracking for each tab
+  final Map<int, int> _currentPages = {0: 1, 1: 1, 2: 1}; // Page tracking for each tab
 
   @override
   void initState() {
@@ -86,11 +86,15 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
         returnDate: returnDate,
       );
       await _load();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Request approved successfully'), backgroundColor: AppColors.success));
+      }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')), backgroundColor: AppColors.error));
+      }
     }
   }
 
@@ -99,11 +103,15 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
     try {
       await BorrowService(user.token).deleteRequest(bookId: t.bookId, studentReg: t.studentId);
       await _load();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Request rejected successfully'), backgroundColor: AppColors.success));
+      }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')), backgroundColor: AppColors.error));
+      }
     }
   }
 
@@ -142,8 +150,10 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
           // Silently fail for reload, don't show error if return was successful
         }
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')), backgroundColor: AppColors.error));
+        }
       }
     }
   }

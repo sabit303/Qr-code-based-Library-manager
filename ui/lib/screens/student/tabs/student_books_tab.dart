@@ -129,7 +129,7 @@ class _StudentBooksTabState extends State<StudentBooksTab> {
                 border: Border.all(
                   color: isSelected
                       ? Colors.transparent
-                      : const Color(0xFF2A3550),
+                      : AppColors.border,
                 ),
               ),
               child: Text(
@@ -311,11 +311,12 @@ class _StudentBooksTabState extends State<StudentBooksTab> {
   }
 
   List<Color> _bookGradient(int index) {
+    // Overhauled book cover placeholders to use distinct deep professional blue/indigo gradients
     final gradients = [
-      [const Color(0xFF6C63FF), const Color(0xFF9B5DE5)],
-      [const Color(0xFF00BFA6), const Color(0xFF0077B6)],
-      [const Color(0xFFFF6B9D), const Color(0xFF9B5DE5)],
-      [const Color(0xFFFFBB33), const Color(0xFFFF6B9D)],
+      [const Color(0xFF1E3A8A), const Color(0xFF3B82F6)],
+      [const Color(0xFF0F172A), const Color(0xFF1E293B)],
+      [const Color(0xFF1D4ED8), const Color(0xFF60A5FA)],
+      [const Color(0xFF1E1B4B), const Color(0xFF4F46E5)],
     ];
     return gradients[index % gradients.length];
   }
@@ -435,7 +436,7 @@ class _BookDetailSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          const Divider(color: Color(0xFF2A3550)),
+          const Divider(color: AppColors.border),
           const SizedBox(height: 16),
           _detail('ISBN', book.isbn ?? '—'),
           _detail('Publisher', book.publisher ?? '—'),

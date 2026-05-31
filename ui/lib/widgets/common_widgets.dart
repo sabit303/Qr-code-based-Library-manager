@@ -30,7 +30,7 @@ class GlassCard extends StatelessWidget {
           color: color ?? AppColors.bgCard,
           gradient: gradient,
           borderRadius: borderRadius ?? BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF2A3550), width: 1),
+          border: Border.all(color: AppColors.border, width: 1),
         ),
         child: child,
       ),
@@ -240,7 +240,7 @@ class SearchBarWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: TextField(
         controller: controller,

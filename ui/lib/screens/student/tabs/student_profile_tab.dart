@@ -245,7 +245,7 @@ class _StudentProfileTabState extends State<StudentProfileTab> {
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(children: children),
     );
@@ -255,7 +255,7 @@ class _StudentProfileTabState extends State<StudentProfileTab> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFF2A3550), width: 0.5)),
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
       ),
       child: Row(
         children: [
@@ -286,7 +286,7 @@ class _StudentProfileTabState extends State<StudentProfileTab> {
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
@@ -313,7 +313,7 @@ class _StudentProfileTabState extends State<StudentProfileTab> {
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [

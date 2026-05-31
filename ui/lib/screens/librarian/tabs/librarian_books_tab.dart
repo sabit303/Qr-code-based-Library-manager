@@ -150,10 +150,10 @@ class _LibrarianBooksTabState extends State<LibrarianBooksTab> {
 
   Widget _bookTile(BookModel book, int index) {
     final gradientColors = [
-      [const Color(0xFF6C63FF), const Color(0xFF9B5DE5)],
-      [const Color(0xFF00BFA6), const Color(0xFF0077B6)],
-      [const Color(0xFFFF6B9D), const Color(0xFF9B5DE5)],
-      [const Color(0xFFFFBB33), const Color(0xFFFF6B9D)],
+      [const Color(0xFF1E3A8A), const Color(0xFF3B82F6)],
+      [const Color(0xFF0F172A), const Color(0xFF1E293B)],
+      [const Color(0xFF1D4ED8), const Color(0xFF60A5FA)],
+      [const Color(0xFF1E1B4B), const Color(0xFF4F46E5)],
     ];
     final c = gradientColors[index % gradientColors.length];
 
@@ -162,7 +162,7 @@ class _LibrarianBooksTabState extends State<LibrarianBooksTab> {
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -593,7 +593,7 @@ class _BookFormSheetState extends State<_BookFormSheet> {
               decoration: BoxDecoration(
                 color: AppColors.bgPrimary,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF2A3550)),
+                border: Border.all(color: AppColors.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -755,12 +755,12 @@ class _BookHistorySheetState extends State<_BookHistorySheet> {
   }
 
   Widget _statCard(String label, String value, Color color) {
-    return Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.bgPrimary, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF2A3550))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(label, style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)), const SizedBox(height: 6), Text(value, style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w800, color: color))]));
+    return Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.bgPrimary, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(label, style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)), const SizedBox(height: 6), Text(value, style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w800, color: color))]));
   }
 
   Widget _sectionHeader(String label) => Text(label, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white));
 
-  Widget _emptyState(String msg) => Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: AppColors.bgPrimary, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF2A3550))), child: Text(msg, style: GoogleFonts.inter(color: AppColors.textSecondary)));
+  Widget _emptyState(String msg) => Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: AppColors.bgPrimary, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)), child: Text(msg, style: GoogleFonts.inter(color: AppColors.textSecondary)));
 
   Widget _transactionCard(TransactionModel t, {bool showStudent = false}) {
     final statusColor = t.isOverdue
@@ -777,7 +777,7 @@ class _BookHistorySheetState extends State<_BookHistorySheet> {
       decoration: BoxDecoration(
         color: AppColors.bgPrimary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -849,5 +849,5 @@ class _BookHistorySheetState extends State<_BookHistorySheet> {
     );
   }
 
-  Widget _mini(String label, String val) => Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8), decoration: BoxDecoration(color: AppColors.bgCard, borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFF2A3550))), child: Row(mainAxisSize: MainAxisSize.min, children: [Text('$label: ', style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)), Text(val, style: GoogleFonts.inter(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600))]));
+  Widget _mini(String label, String val) => Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8), decoration: BoxDecoration(color: AppColors.bgCard, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.border)), child: Row(mainAxisSize: MainAxisSize.min, children: [Text('$label: ', style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)), Text(val, style: GoogleFonts.inter(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600))]));
 }

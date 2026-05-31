@@ -61,7 +61,7 @@ class _LibrarianDashboardTabState extends State<LibrarianDashboardTab> {
       backgroundColor: AppColors.bgPrimary,
       body: RefreshIndicator(
         onRefresh: _load,
-        color: AppColors.accent,
+        color: AppColors.primary,
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
@@ -132,7 +132,7 @@ class _LibrarianDashboardTabState extends State<LibrarianDashboardTab> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.accent.withOpacity(0.3),
+            color: AppColors.primary.withOpacity(0.3),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -207,12 +207,8 @@ class _LibrarianDashboardTabState extends State<LibrarianDashboardTab> {
           label: 'Active Loans',
           value: active.toString(),
           icon: Icons.book_online_rounded,
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFBB33), Color(0xFFFF6B9D)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          iconColor: AppColors.gold,
+          gradient: AppColors.accentGradient,
+          iconColor: AppColors.accent,
           onTap: () => widget.onNavigate?.call(3, subTabIndex: 1),
         ),
         StatCard(
@@ -220,7 +216,7 @@ class _LibrarianDashboardTabState extends State<LibrarianDashboardTab> {
           value: overdue.toString(),
           icon: Icons.warning_amber_rounded,
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF3D71), Color(0xFFFF6B9D)],
+            colors: [Color(0xFFEF4444), Color(0xFFF87171)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -235,21 +231,21 @@ class _LibrarianDashboardTabState extends State<LibrarianDashboardTab> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.gold.withOpacity(0.1),
+        color: AppColors.warning.withOpacity(0.1),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.gold.withOpacity(0.3)),
+        border: Border.all(color: AppColors.warning.withOpacity(0.3)),
       ),
       child: Row(
         children: [
           const Icon(Icons.access_time_rounded,
-              color: AppColors.gold, size: 22),
+              color: AppColors.warning, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               '$dueSoon book${dueSoon > 1 ? 's' : ''} due within 3 days',
               style: GoogleFonts.inter(
                   fontSize: 13,
-                  color: AppColors.gold,
+                  color: AppColors.warning,
                   fontWeight: FontWeight.w600),
             ),
           ),
@@ -268,7 +264,7 @@ class _LibrarianDashboardTabState extends State<LibrarianDashboardTab> {
         border: Border.all(
           color: t.isOverdue
               ? AppColors.error.withOpacity(0.3)
-              : const Color(0xFF2A3550),
+              : AppColors.border,
         ),
       ),
       child: Row(
@@ -277,11 +273,11 @@ class _LibrarianDashboardTabState extends State<LibrarianDashboardTab> {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: AppColors.accent.withOpacity(0.12),
+              color: AppColors.primary.withOpacity(0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.book_rounded,
-                color: AppColors.accent, size: 20),
+                color: AppColors.primary, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(

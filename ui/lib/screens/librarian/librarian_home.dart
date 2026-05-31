@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
-import '../../data/providers/auth_provider.dart';
 import 'tabs/librarian_dashboard_tab.dart';
 import 'tabs/librarian_books_tab.dart';
 import 'tabs/librarian_students_tab.dart';

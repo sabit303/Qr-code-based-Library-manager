@@ -192,19 +192,15 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
           label: 'Pending',
           value: pending.toString(),
           icon: Icons.hourglass_top_rounded,
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFBB33), Color(0xFFFF8A00)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          iconColor: AppColors.accent,
+          gradient: AppColors.secondaryGradient,
+          iconColor: AppColors.secondary,
         ),
         StatCard(
           label: 'Overdue',
           value: overdue.toString(),
           icon: Icons.warning_amber_rounded,
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF3D71), Color(0xFFFF6B9D)],
+            colors: [Color(0xFFEF4444), Color(0xFFF87171)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -214,12 +210,8 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
           label: 'Returned',
           value: returned.toString(),
           icon: Icons.check_circle_rounded,
-          gradient: const LinearGradient(
-            colors: [Color(0xFF00BFA6), Color(0xFF00796B)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          iconColor: AppColors.secondary,
+          gradient: AppColors.accentGradient,
+          iconColor: AppColors.accent,
         ),
       ],
     ).animate().fadeIn(delay: 200.ms, duration: 600.ms);
@@ -230,7 +222,7 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFFF3D71), Color(0xFFFF6B9D)],
+          colors: [Color(0xFFEF4444), Color(0xFFF87171)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -342,7 +334,7 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+        border: Border.all(color: AppColors.warning.withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -350,11 +342,11 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: AppColors.accent.withOpacity(0.12),
+              color: AppColors.warning.withOpacity(0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.schedule_rounded,
-                color: AppColors.accent, size: 22),
+                color: AppColors.warning, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -382,7 +374,7 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
               ],
             ),
           ),
-          StatusBadge(label: 'Pending', color: AppColors.accent),
+          StatusBadge(label: 'Pending', color: AppColors.warning),
         ],
       ),
     );
@@ -405,7 +397,7 @@ class _StudentDashboardTabState extends State<StudentDashboardTab> {
         border: Border.all(
           color: isOverdue
               ? AppColors.error.withOpacity(0.3)
-              : const Color(0xFF2A3550),
+              : AppColors.border,
         ),
       ),
       child: Row(

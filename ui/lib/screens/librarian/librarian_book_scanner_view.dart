@@ -10,7 +10,6 @@ import '../../data/models/transaction_model.dart';
 import '../../data/providers/auth_provider.dart';
 import '../../data/services/book_service.dart';
 import '../../data/services/borrow_service.dart';
-import '../../widgets/common_widgets.dart';
 import 'librarian_book_detail_screen.dart';
 
 class LibrarianBookScannerView extends StatefulWidget {

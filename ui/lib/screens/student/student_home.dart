@@ -45,7 +45,7 @@ class _StudentHomeState extends State<StudentHome> {
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: AppColors.bgSecondary,
-          border: Border(top: BorderSide(color: Color(0xFF2A3550), width: 1)),
+          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
         ),
         child: SafeArea(
           child: Padding(

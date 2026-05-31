@@ -118,8 +118,10 @@ class _LibrarianStudentDetailScreenState
           // Silently fail for reload, don't show error if return was successful
         }
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')), backgroundColor: AppColors.error));
+        }
       }
     }
   }

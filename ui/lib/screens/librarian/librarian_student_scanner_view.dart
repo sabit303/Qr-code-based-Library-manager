@@ -9,7 +9,6 @@ import '../../data/models/transaction_model.dart';
 import '../../data/providers/auth_provider.dart';
 import '../../data/services/student_service.dart';
 import '../../widgets/common_widgets.dart';
-import 'package:intl/intl.dart';
 
 class LibrarianStudentScannerView extends StatefulWidget {
   const LibrarianStudentScannerView({super.key});

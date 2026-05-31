@@ -153,7 +153,7 @@ class _LibrarianStudentsTabState extends State<LibrarianStudentsTab> {
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -607,7 +607,7 @@ class _StudentHistorySheetState extends State<_StudentHistorySheet> {
       decoration: BoxDecoration(
         color: AppColors.bgPrimary,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -637,7 +637,7 @@ class _StudentHistorySheetState extends State<_StudentHistorySheet> {
       decoration: BoxDecoration(
         color: AppColors.bgPrimary,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Text(
         message,
@@ -661,7 +661,7 @@ class _StudentHistorySheetState extends State<_StudentHistorySheet> {
       decoration: BoxDecoration(
         color: AppColors.bgPrimary,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -739,7 +739,7 @@ class _StudentHistorySheetState extends State<_StudentHistorySheet> {
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -904,7 +904,7 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
               decoration: BoxDecoration(
                 color: AppColors.bgPrimary,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF2A3550)),
+                border: Border.all(color: AppColors.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

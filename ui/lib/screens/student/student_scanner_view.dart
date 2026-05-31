@@ -122,14 +122,7 @@ class _StudentScannerViewState extends State<StudentScannerView> {
                               errorBuilder: (context, error, stackTrace) =>
                                   Container(
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF6C63FF),
-                                      Color(0xFF9B5DE5)
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
+                                  gradient: AppColors.primaryGradient,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: const Center(
@@ -141,14 +134,7 @@ class _StudentScannerViewState extends State<StudentScannerView> {
                           )
                         : Container(
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF6C63FF),
-                                  Color(0xFF9B5DE5)
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              gradient: AppColors.primaryGradient,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: const Center(
@@ -269,7 +255,7 @@ class _StudentScannerViewState extends State<StudentScannerView> {
       decoration: BoxDecoration(
         color: AppColors.bgPrimary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2A3550)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

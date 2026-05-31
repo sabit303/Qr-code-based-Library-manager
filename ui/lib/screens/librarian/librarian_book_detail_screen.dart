@@ -5,7 +5,6 @@ import '../../core/theme/app_theme.dart';
 import '../../data/models/book_model.dart';
 import '../../data/models/transaction_model.dart';
 import '../../data/services/borrow_service.dart';
-import '../../widgets/common_widgets.dart';
 import '../../widgets/image_preview_dialog.dart';
 
 class LibrarianBookDetailScreen extends StatefulWidget {

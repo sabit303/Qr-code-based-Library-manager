@@ -183,7 +183,7 @@ class _StudentHistoryTabState extends State<StudentHistoryTab>
         border: Border.all(
           color: isOverdue
               ? AppColors.error.withOpacity(0.35)
-              : const Color(0xFF2A3550),
+              : AppColors.border,
         ),
       ),
       child: Padding(
@@ -233,7 +233,7 @@ class _StudentHistoryTabState extends State<StudentHistoryTab>
               ],
             ),
             const SizedBox(height: 14),
-            const Divider(color: Color(0xFF2A3550), height: 1),
+            const Divider(color: AppColors.border, height: 1),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

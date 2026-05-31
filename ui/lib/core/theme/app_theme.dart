@@ -3,58 +3,67 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   // Background
-  static const Color bgPrimary = Color(0xFF0A0E1A);
-  static const Color bgSecondary = Color(0xFF141824);
-  static const Color bgCard = Color(0xFF1C2235);
-  static const Color bgCardLight = Color(0xFF232B40);
+  static const Color bgPrimary = Color(0xFF060913); // Deep midnight blue/black
+  static const Color bgSecondary = Color(0xFF0F172A); // Slate 900
+  static const Color bgCard = Color(0xFF1E293B); // Slate 800
+  static const Color bgCardLight = Color(0xFF334155); // Slate 700
+  
+  // Borders
+  static const Color border = Color(0xFF334155); // Slate 700 border for high contrast
 
   // Brand
-  static const Color primary = Color(0xFF6C63FF);
-  static const Color primaryLight = Color(0xFF8B84FF);
-  static const Color primaryDark = Color(0xFF4A42D4);
-  static const Color secondary = Color(0xFF00BFA6);
-  static const Color secondaryLight = Color(0xFF33CCBB);
-  static const Color accent = Color(0xFFFF6B9D);
-  static const Color gold = Color(0xFFFFBB33);
+  static const Color primary = Color(0xFF2563EB); // Royal Blue
+  static const Color primaryLight = Color(0xFF60A5FA); // Sky Blue Light
+  static const Color primaryDark = Color(0xFF1D4ED8); // Royal Blue Dark
+  static const Color secondary = Color(0xFF3B82F6); // Dodger Blue
+  static const Color secondaryLight = Color(0xFF93C5FD);
+  static const Color accent = Color(0xFF60A5FA); // Sky Blue Accent
+  static const Color gold = Color(0xFFF59E0B); // Amber / Gold
 
   // Text
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFF8B9EB7);
-  static const Color textMuted = Color(0xFF4A5568);
+  static const Color textPrimary = Color(0xFFF8FAFC); // Slate 50
+  static const Color textSecondary = Color(0xFF94A3B8); // Slate 400
+  static const Color textMuted = Color(0xFF64748B); // Slate 500
 
   // Status
-  static const Color success = Color(0xFF00D68F);
-  static const Color warning = Color(0xFFFFAA00);
-  static const Color error = Color(0xFFFF3D71);
-  static const Color info = Color(0xFF0095FF);
+  static const Color success = Color(0xFF10B981); // Emerald Green
+  static const Color warning = Color(0xFFF59E0B); // Amber Warning
+  static const Color error = Color(0xFFEF4444); // Rose Red
+  static const Color info = Color(0xFF3B82F6); // Blue Info
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF6C63FF), Color(0xFF9B5DE5)],
+    colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient secondaryGradient = LinearGradient(
-    colors: [Color(0xFF00BFA6), Color(0xFF0077B6)],
+    colors: [Color(0xFF1D4ED8), Color(0xFF60A5FA)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [Color(0xFF60A5FA), Color(0xFF93C5FD)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0xFF1C2235), Color(0xFF232B40)],
+    colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient studentGradient = LinearGradient(
-    colors: [Color(0xFF6C63FF), Color(0xFF00BFA6)],
+    colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient librarianGradient = LinearGradient(
-    colors: [Color(0xFFFF6B9D), Color(0xFF9B5DE5)],
+    colors: [Color(0xFF1D4ED8), Color(0xFF3B82F6)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -153,7 +162,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF2A3550), width: 1),
+          borderSide: const BorderSide(color: AppColors.border, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -197,7 +206,7 @@ class AppTheme {
         ),
       ),
       dividerTheme: const DividerThemeData(
-        color: Color(0xFF2A3550),
+        color: AppColors.border,
         thickness: 1,
       ),
       snackBarTheme: SnackBarThemeData(
