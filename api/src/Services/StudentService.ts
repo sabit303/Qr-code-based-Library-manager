@@ -83,6 +83,16 @@ export class StudentService {
         throw new ConflictError(`Cannot delete this student. They have ${activeBorrows} book(s) currently borrowed.`);
       }
     }
+
+    if (student) {
+      const { deleteImageFromCloudflare } = await import('../utils/CloudflareImages.js');
+
+      await Promise.allSettled([
+        deleteImageFromCloudflare(student.PhotoUrl),
+        deleteImageFromCloudflare(student.qrCode),
+      ]);
+    }
+
     return this.studentRepository.delete(id);
   }
 

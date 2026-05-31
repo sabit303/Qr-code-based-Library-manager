@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { Buffer } from 'buffer';
 
 export async function uploadImageToCloudflare(base64: string, filename: string): Promise<string> {
@@ -48,6 +48,52 @@ export async function uploadImageToCloudflare(base64: string, filename: string):
     // Return the public URL to the uploaded file
     console.log(`${publicUrl}/${filename}`);
     return `${publicUrl}/${filename}`;
+  } finally {
+    client.destroy();
+  }
+}
+
+export async function deleteImageFromCloudflare(imageUrl: string | null | undefined): Promise<void> {
+  if (!imageUrl) {
+    return;
+  }
+
+  const accountId = process.env.CF_R2_ACCOUNT_ID;
+  const accessKeyId = process.env.CF_R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.CF_R2_SECRET_ACCESS_KEY;
+  const bucketName = process.env.CF_R2_BUCKET_NAME;
+  const publicUrl = process.env.CF_R2_PUBLIC_URL;
+
+  if (!accountId || !accessKeyId || !secretAccessKey || !bucketName || !publicUrl) {
+    console.log("Cloudflare R2 configuration is missing (CF_R2_ACCOUNT_ID, CF_R2_ACCESS_KEY_ID, CF_R2_SECRET_ACCESS_KEY, CF_R2_BUCKET_NAME, CF_R2_PUBLIC_URL");
+    throw new Error('Cloudflare R2 configuration is missing (CF_R2_ACCOUNT_ID, CF_R2_ACCESS_KEY_ID, CF_R2_SECRET_ACCESS_KEY, CF_R2_BUCKET_NAME, CF_R2_PUBLIC_URL)');
+  }
+
+  if (!imageUrl.startsWith(publicUrl)) {
+    return;
+  }
+
+  const key = imageUrl.slice(publicUrl.length).replace(/^\/+/, '');
+  if (!key) {
+    return;
+  }
+
+  const client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+  });
+
+  try {
+    await client.send(
+      new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      })
+    );
   } finally {
     client.destroy();
   }

@@ -49,6 +49,11 @@ export class BookServices {
             }
         }
 
+        const { deleteImageFromCloudflare } = await import('../utils/CloudflareImages.js');
+        await Promise.allSettled([
+            deleteImageFromCloudflare(book.CoverUrl as unknown as string | null | undefined),
+        ]);
+
         return this.bookRepository.removeBook(id);
     }
 
@@ -110,7 +115,7 @@ export class BookServices {
         if (!book) throw new NotFoundError("Book not found");
 
         // If copies are available, it's available now
-        if (book.AvailableCopies > 0) {
+        if (Number(book.AvailableCopies) > 0) {
             return { nextAvailableDate: null, isAvailable: true };
         }
 
