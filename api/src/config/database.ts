@@ -11,18 +11,41 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'library_manager',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+
+  connectTimeout: 60000
 });
 
+const DEFAULT_RETRY_ATTEMPTS = 5;
+const DEFAULT_RETRY_DELAY_MS = 3000;
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 // Test database connection
-export async function testConnection(): Promise<void> {
-  try {
-    const connection = await pool.getConnection();
-    console.log('✅ MySQL Database connected successfully');
-    connection.release();
-  } catch (error) {
-    console.error('❌ MySQL Database connection failed:', error);
-    throw error;
+export async function testConnection(
+  retryAttempts = DEFAULT_RETRY_ATTEMPTS,
+  retryDelayMs = DEFAULT_RETRY_DELAY_MS
+): Promise<void> {
+  for (let attempt = 1; attempt <= retryAttempts; attempt += 1) {
+    try {
+      const connection = await pool.getConnection();
+      console.log('✅ MySQL Database connected successfully');
+      connection.release();
+      return;
+    } catch (error) {
+      if (attempt < retryAttempts) {
+        console.warn(
+          `⚠️ MySQL Database connection failed. Retry ${attempt}/${retryAttempts - 1} in ${retryDelayMs}ms...`
+        );
+        await delay(retryDelayMs);
+        continue;
+      }
+
+      console.error('❌ MySQL Database connection failed:', error);
+      throw error;
+    }
   }
 }
 
