@@ -42,7 +42,7 @@ jobs:
 
           script: |
             cd ~/library
-
+            docker compose down
             docker pull ghcr.io/${{ github.repository_owner }}/qr-code-based-library-manager-api:latest
 
             docker compose up -d --remove-orphans
