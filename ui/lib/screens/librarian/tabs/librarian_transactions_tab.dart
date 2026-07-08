@@ -78,8 +78,12 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
   Future<void> _approveRequest(TransactionModel t) async {
     final user = context.read<AuthProvider>().user!;
     try {
-      // Calculate return date as 30 days from now
-      final returnDate = DateTime.now().add(const Duration(days: 30));
+      // Honor the return date the student requested. Fall back to 30 days from
+      // now if, for some reason, no valid future date was provided.
+      final now = DateTime.now();
+      final returnDate = t.dueDate.isAfter(now)
+          ? t.dueDate
+          : now.add(const Duration(days: 30));
       await BorrowService(user.token).confirmBookRequest(
         bookId: t.bookId,
         studentReg: t.studentId,
@@ -374,6 +378,21 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
               ),
             ),
           ] else ...[
+            Row(
+              children: [
+                Icon(Icons.event_available_rounded, size: 16, color: accent),
+                const SizedBox(width: 8),
+                Text('Requested return:',
+                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
+                const SizedBox(width: 6),
+                Text(
+                  DateFormat('EEE, MMM d, yyyy').format(t.dueDate),
+                  style: GoogleFonts.inter(
+                      fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(

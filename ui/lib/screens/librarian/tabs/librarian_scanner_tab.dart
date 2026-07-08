@@ -134,11 +134,12 @@ class _LibrarianScannerTabState extends State<LibrarianScannerTab> {
         return;
       }
       
+      final returnDate = DateTime.now().add(const Duration(days: 30));
       await BorrowService(user.token).requestBook(
         studentReg: _scannedStudent!.registration,
         bookId: _selectedBook!.id,
+        returnDate: returnDate,
       );
-      final returnDate = DateTime.now().add(const Duration(days: 30));
       await BorrowService(user.token).confirmBookRequest(
         studentReg: _scannedStudent!.registration,
         bookId: _selectedBook!.id,

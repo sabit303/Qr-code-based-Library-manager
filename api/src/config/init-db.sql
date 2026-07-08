@@ -4,16 +4,18 @@ CREATE DATABASE IF NOT EXISTS library_manager;
 USE library_manager;
 
 -- Create students table
+-- Only Roll and Registration are mandatory when a librarian first adds a student.
+-- Every other detail is optional and can be completed by the student later.
 CREATE TABLE IF NOT EXISTS students (
   id VARCHAR(36) PRIMARY KEY,
-  Name VARCHAR(255) NOT NULL,
+  Name VARCHAR(255),
   Roll VARCHAR(50) NOT NULL UNIQUE,
   Registration VARCHAR(50) NOT NULL UNIQUE,
-  Department VARCHAR(100) NOT NULL,
-  Session VARCHAR(50) NOT NULL,
+  Department VARCHAR(100),
+  Session VARCHAR(50),
   ContactNumber VARCHAR(20),
   Address TEXT,
-  Email VARCHAR(255) NOT NULL UNIQUE,
+  Email VARCHAR(255) UNIQUE,
   Password VARCHAR(255) NOT NULL,
   qrCode VARCHAR(500) UNIQUE,
   PhotoUrl VARCHAR(1000),
@@ -25,6 +27,14 @@ CREATE TABLE IF NOT EXISTS students (
   INDEX idx_department (Department),
   INDEX idx_email (Email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Relax constraints on existing databases (safe to run repeatedly).
+-- These make the optional student details nullable so a student can be
+-- created with just Roll + Registration.
+ALTER TABLE students MODIFY Name VARCHAR(255) NULL;
+ALTER TABLE students MODIFY Department VARCHAR(100) NULL;
+ALTER TABLE students MODIFY Session VARCHAR(50) NULL;
+ALTER TABLE students MODIFY Email VARCHAR(255) NULL;
 
 -- Create librarians table
 CREATE TABLE IF NOT EXISTS librarians (

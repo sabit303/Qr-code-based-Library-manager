@@ -29,14 +29,16 @@ export class MySQLStudentRepository implements IStudentRepository {
 
     await pool.execute(query, [
       student.id,
-      student.Name,
+      student.Name || null,
       student.Roll,
       student.Registration,
-      student.Department,
-      student.Session,
-      student.ContactNumber,
-      student.Address,
-      student.Email,
+      student.Department || null,
+      student.Session || null,
+      student.ContactNumber || null,
+      student.Address || null,
+      // Email is UNIQUE in the DB, so store NULL (not an empty string) when
+      // it isn't provided to avoid collisions between students without emails.
+      student.Email || null,
       student.Password,
       student.qrCode || null,
       student.PhotoUrl || null

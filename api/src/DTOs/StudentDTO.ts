@@ -1,13 +1,13 @@
 export interface CreateStudentDTO {
-  Name: string;
   Roll: string;
   Registration: string;
-  Department: string;
-  Session: string;
-  ContactNumber: string;
-  Address: string;
-  Email: string;
-  Password: string;
+  Name: string;
+  Department?: string;
+  Session?: string;
+  ContactNumber?: string;
+  Address?: string;
+  Email?: string;
+  Password?: string;
   PhotoUrl?: string;
 }
 

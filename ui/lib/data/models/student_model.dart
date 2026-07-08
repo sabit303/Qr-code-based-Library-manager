@@ -64,4 +64,34 @@ class StudentModel {
     }
     return name.isNotEmpty ? name[0].toUpperCase() : 'S';
   }
+
+  /// A profile is considered complete only when every detail a student is
+  /// expected to fill in has a non-empty value (plus a profile photo).
+  /// Roll and Registration are always set by the librarian at creation time.
+  bool get isProfileComplete {
+    bool has(String? v) => v != null && v.trim().isNotEmpty;
+    return has(name) &&
+        has(roll) &&
+        has(registration) &&
+        has(department) &&
+        has(session) &&
+        has(email) &&
+        has(contactNumber) &&
+        has(address) &&
+        has(photoUrl);
+  }
+
+  /// Human-readable list of the details still missing from the profile.
+  List<String> get missingProfileFields {
+    bool has(String? v) => v != null && v.trim().isNotEmpty;
+    return [
+      if (!has(name)) 'Full Name',
+      if (!has(department)) 'Department',
+      if (!has(session)) 'Session',
+      if (!has(email)) 'Email',
+      if (!has(contactNumber)) 'Contact Number',
+      if (!has(address)) 'Address',
+      if (!has(photoUrl)) 'Profile Photo',
+    ];
+  }
 }

@@ -8,15 +8,27 @@ import { connect } from "http2";
 
 
 export class MySQLTransactionRepository implements IBorrowRepository {
-    async RequestANewBook(BookId: string, StudentReg: string): Promise<Partial<Transaction> | null> {
+    async RequestANewBook(BookId: string, StudentReg: string, returnDate?: string): Promise<Partial<Transaction> | null> {
         try {
             const [book] = await pool.execute<RowDataPacket[]>("SELECT * FROM books WHERE id = ?", [BookId]);
             if (book.length == 0) {
                 return null;
             } else {
-                const [transaction] = await pool.execute<ResultSetHeader>("INSERT INTO transactions (bookId, studentReg, status, createdAt) VALUES (?, ?, 'REQUESTED', NOW())", [BookId, StudentReg]);
+                // Store the student's requested return date as the dueDate up front,
+                // so it is carried through to issue time.
+                if (returnDate) {
+                    await pool.execute<ResultSetHeader>(
+                        "INSERT INTO transactions (bookId, studentReg, status, createdAt, dueDate) VALUES (?, ?, 'REQUESTED', NOW(), ?)",
+                        [BookId, StudentReg, new Date(returnDate)]
+                    );
+                } else {
+                    await pool.execute<ResultSetHeader>(
+                        "INSERT INTO transactions (bookId, studentReg, status, createdAt) VALUES (?, ?, 'REQUESTED', NOW())",
+                        [BookId, StudentReg]
+                    );
+                }
                 const [insertedRow] = await pool.execute<RowDataPacket[]>(
-                    "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ?",
+                    "SELECT * FROM transactions WHERE studentReg = ? AND bookId = ? ORDER BY createdAt DESC, id DESC LIMIT 1",
                     [StudentReg, BookId]
                 );
                 return {

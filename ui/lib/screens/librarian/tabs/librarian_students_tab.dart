@@ -860,13 +860,15 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
         controller: _passwordC,
         style: const TextStyle(color: Colors.white),
         obscureText: true,
-        decoration: const InputDecoration(
-          labelText: 'Password *',
-          prefixIcon: Icon(Icons.lock_rounded, color: AppColors.textSecondary, size: 20),
+        decoration: InputDecoration(
+          labelText: 'Password',
+          helperText: isCreate
+              ? 'Optional. Defaults to the registration number.'
+              : 'Leave blank to keep the current password.',
+          helperStyle: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted),
+          prefixIcon: const Icon(Icons.lock_rounded, color: AppColors.textSecondary, size: 20),
         ),
-        validator: isCreate
-            ? (v) => (v == null || v.isEmpty) ? 'Required' : null
-            : null,
+        validator: null,
       ),
     );
   }
@@ -891,12 +893,12 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
             _f(_nameC, 'Full Name *', Icons.person_rounded, req: true),
             _f(_rollC, 'Roll Number *', Icons.badge_rounded, req: true),
             _f(_regC, 'Registration *', Icons.app_registration_rounded, req: true),
-            _f(_deptC, 'Department *', Icons.school_rounded, req: true),
-            _f(_sessC, 'Session *', Icons.date_range_rounded, req: true),
-            _f(_emailC, 'Email *', Icons.email_rounded, req: true),
+            _f(_deptC, 'Department', Icons.school_rounded),
+            _f(_sessC, 'Session', Icons.date_range_rounded),
+            _f(_emailC, 'Email', Icons.email_rounded),
             _passwordField(),
-            _f(_phoneC, 'Contact Number *', Icons.phone_rounded, req: true),
-            _f(_addrC, 'Address *', Icons.location_on_rounded, req: true),
+            _f(_phoneC, 'Contact Number', Icons.phone_rounded),
+            _f(_addrC, 'Address', Icons.location_on_rounded),
             const SizedBox(height: 16),
             // Photo Picker Section
             Container(

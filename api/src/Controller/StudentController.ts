@@ -26,8 +26,9 @@ export class StudentController {
       }
     }
     
-    // Validate required fields
-    const requiredFields = ['Name', 'Roll', 'Registration', 'Department', 'Session', 'ContactNumber', 'Address', 'Email', 'Password'];
+    // Validate required fields - Roll, Registration and Name are mandatory.
+    // All other details are optional and can be filled in by the student later.
+    const requiredFields = ['Name', 'Roll', 'Registration'];
     const missingFields = requiredFields.filter(field => !dto[field as keyof CreateStudentDTO]);
     
     if (missingFields.length > 0) {
@@ -35,6 +36,12 @@ export class StudentController {
         "Missing required fields", 
         missingFields.map(field => ({ field, message: `${field} is required` }))
       );
+    }
+
+    // Default the password to the student's registration number when not provided.
+    // The student can change it later from their profile.
+    if (!dto.Password) {
+      dto.Password = dto.Registration;
     }
     
     const student = await this.studentService.create(dto);

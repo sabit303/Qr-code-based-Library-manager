@@ -20,5 +20,6 @@ export interface UpdateBookDTO {
 
 export interface RequestNewBookDTO {
     bookID: string,
-    StudentReg: string
+    StudentReg: string,
+    returnDate?: string
 }

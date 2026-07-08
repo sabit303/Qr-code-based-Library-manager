@@ -30,11 +30,17 @@ class BorrowService {
       };
 
   Future<TransactionModel> requestBook(
-      {required String bookId, required String studentReg}) async {
+      {required String bookId,
+      required String studentReg,
+      required DateTime returnDate}) async {
     final response = await http.post(
       Uri.parse(ApiConstants.borrowRequest),
       headers: _headers,
-      body: jsonEncode({'bookID': bookId, 'StudentReg': studentReg}),
+      body: jsonEncode({
+        'bookID': bookId,
+        'StudentReg': studentReg,
+        'returnDate': returnDate.toIso8601String(),
+      }),
     );
     final data = jsonDecode(response.body);
     if ((response.statusCode == 200 || response.statusCode == 201) &&

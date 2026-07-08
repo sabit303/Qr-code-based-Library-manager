@@ -18,6 +18,11 @@ export class BorrowController {
             throw new UnauthorizedError("User information missing");
         }
 
+        // The student must choose an expected return date when requesting a book.
+        if (!dto.returnDate) {
+            throw new BadRequestError("A return date is required to request a book");
+        }
+
         const transaction = await this.borrowService.requestNewBook(dto, Registration, userRole);
         
         if (!transaction) {

@@ -17,7 +17,9 @@ export class StudentService {
   
   async create(dto: CreateStudentDTO): Promise<Student> {
     //const qrCode = await this.qrCodeService.generate(dto.Registration);
-    const hashedPassword = await this.passwordHasher.hashPassword(dto.Password);
+    // Default the password to the registration number if one wasn't supplied.
+    const rawPassword = dto.Password || dto.Registration;
+    const hashedPassword = await this.passwordHasher.hashPassword(rawPassword);
     
     return this.studentRepository.create({ 
       ...dto, 
@@ -71,6 +73,20 @@ export class StudentService {
     if (userRole === "student" && id !== userId) {
       throw new ForbiddenError("You can only update your own profile");
     }
+
+    // Students may edit their own details, but not their identity keys
+    // (Roll / Registration), which are used for login and referenced by
+    // borrow transactions. Only librarians can change those.
+    if (userRole === "student") {
+      const { Roll, Registration, ...rest } = dto;
+      dto = rest;
+    }
+
+    // Hash the password if the caller is changing it, so we never store it in plain text.
+    if (dto.Password) {
+      dto = { ...dto, Password: await this.passwordHasher.hashPassword(dto.Password) };
+    }
+
     return this.studentRepository.update(id, dto);
   }
 

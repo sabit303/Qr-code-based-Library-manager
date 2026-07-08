@@ -162,11 +162,12 @@ class _LibrarianBookScannerViewState extends State<LibrarianBookScannerView> {
           return;
         }
         
+        final returnDate = DateTime.now().add(const Duration(days: 30));
         await borrowService.requestBook(
           bookId: book.id,
           studentReg: widget.student!.registration,
+          returnDate: returnDate,
         );
-        final returnDate = DateTime.now().add(const Duration(days: 30));
         await borrowService.confirmBookRequest(
           bookId: book.id,
           studentReg: widget.student!.registration,

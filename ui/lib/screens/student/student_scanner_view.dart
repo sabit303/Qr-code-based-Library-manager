@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/book_model.dart';
+import '../../../data/models/student_model.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/book_service.dart';
 import '../../../data/services/borrow_service.dart';
+import '../../../data/services/student_service.dart';
 
 class StudentScannerView extends StatefulWidget {
   const StudentScannerView({super.key});
@@ -30,13 +33,20 @@ class _StudentScannerViewState extends State<StudentScannerView> {
     setState(() => _isProcessing = true);
 
     try {
-      final token = context.read<AuthProvider>().user!.token;
+      final user = context.read<AuthProvider>().user!;
+      final token = user.token;
       // The QR code now simply contains the book ID
       final book = await BookService(token).getBookById(qrCode);
-      
+      // Load the student's own profile to enforce completeness before borrowing.
+      final student = await StudentService(token).getStudentById(user.id);
+
       if (mounted) {
         cameraController.stop();
-        await _showBookDetailsDialog(book);
+        if (!student.isProfileComplete) {
+          await _showIncompleteProfileDialog(student);
+        } else {
+          await _showBookDetailsDialog(book, student);
+        }
         cameraController.start();
       }
     } catch (e) {
@@ -55,10 +65,75 @@ class _StudentScannerViewState extends State<StudentScannerView> {
     }
   }
 
-  Future<void> _showBookDetailsDialog(BookModel book) async {
+  Future<void> _showIncompleteProfileDialog(StudentModel student) async {
+    final missing = student.missingProfileFields;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: AppColors.warning),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text('Complete Your Profile',
+                  style: GoogleFonts.inter(
+                      color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You must complete your profile before you can request books.',
+              style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 13),
+            ),
+            if (missing.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text('Still missing:',
+                  style: GoogleFonts.inter(
+                      color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 6),
+              ...missing.map((f) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.circle, size: 6, color: AppColors.warning),
+                        const SizedBox(width: 8),
+                        Text(f,
+                            style: GoogleFonts.inter(
+                                color: AppColors.textSecondary, fontSize: 13)),
+                      ],
+                    ),
+                  )),
+            ],
+            const SizedBox(height: 8),
+            Text(
+              'Go to the Profile tab and tap Edit to update your details.',
+              style: GoogleFonts.inter(color: AppColors.textMuted, fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('OK',
+                style: GoogleFonts.inter(
+                    color: AppColors.primary, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showBookDetailsDialog(BookModel book, StudentModel student) async {
     final user = context.read<AuthProvider>().user!;
     bool requesting = false;
     bool alreadyRequestedOrIssued = false;
+    DateTime? returnDate;
 
     // Pre-fetch transactions to disable duplicate requests on the client
     try {
@@ -179,18 +254,85 @@ class _StudentScannerViewState extends State<StudentScannerView> {
                       _buildInfoChip('Category', book.category!),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+                // Return date selector — the student must pick when they will
+                // return the book before a request can be submitted.
+                Text(
+                  'Expected Return Date',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: alreadyRequestedOrIssued
+                      ? null
+                      : () async {
+                          final now = DateTime.now();
+                          final picked = await showDatePicker(
+                            context: ctx,
+                            initialDate: returnDate ?? now.add(const Duration(days: 14)),
+                            firstDate: now.add(const Duration(days: 1)),
+                            lastDate: now.add(const Duration(days: 90)),
+                          );
+                          if (picked != null) {
+                            setModalState(() => returnDate = picked);
+                          }
+                        },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgPrimary,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: returnDate == null
+                            ? AppColors.border
+                            : AppColors.primary.withOpacity(0.6),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.event_rounded,
+                            color: AppColors.primary, size: 20),
+                        const SizedBox(width: 12),
+                        Text(
+                          returnDate == null
+                              ? 'Select a return date'
+                              : DateFormat('EEE, MMM d, yyyy').format(returnDate!),
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: returnDate == null
+                                ? AppColors.textMuted
+                                : Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.arrow_drop_down_rounded,
+                            color: AppColors.textSecondary),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   height: 54,
                   child: ElevatedButton(
-                    onPressed: (book.availableCopies > 0 && !requesting && !alreadyRequestedOrIssued)
+                    onPressed: (book.availableCopies > 0 &&
+                            !requesting &&
+                            !alreadyRequestedOrIssued &&
+                            returnDate != null)
                         ? () async {
                             setModalState(() => requesting = true);
                             try {
                               await BorrowService(user.token).requestBook(
                                 bookId: book.id,
                                 studentReg: user.registration ?? user.id,
+                                returnDate: returnDate!,
                               );
                               if (ctx.mounted) {
                                 Navigator.pop(ctx);
@@ -219,6 +361,7 @@ class _StudentScannerViewState extends State<StudentScannerView> {
                           : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
+                      disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -231,7 +374,11 @@ class _StudentScannerViewState extends State<StudentScannerView> {
                         : Text(
                             alreadyRequestedOrIssued
                                 ? 'Already Requested / Issued'
-                                : (book.availableCopies > 0 ? 'Request to Borrow' : 'Out of Stock'),
+                                : book.availableCopies <= 0
+                                    ? 'Out of Stock'
+                                    : returnDate == null
+                                        ? 'Select Return Date'
+                                        : 'Request to Borrow',
                             style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

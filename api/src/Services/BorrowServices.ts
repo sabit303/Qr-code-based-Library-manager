@@ -37,7 +37,7 @@ export class borrowService {
         throw new ConflictError("Student already has this book issued");
       }
 
-      const transactionDetails = await this.transactionRepo.RequestANewBook(dto.bookID, dto.StudentReg);
+      const transactionDetails = await this.transactionRepo.RequestANewBook(dto.bookID, dto.StudentReg, dto.returnDate);
       return transactionDetails;
     } catch (e) {
       console.log(e);
