@@ -115,7 +115,8 @@ export class MySQLTransactionRepository implements IBorrowRepository {
                 s.Department as studentDepartment,
                 s.Session as studentSession,
                 b.name as bookTitle,
-                b.authorName as bookAuthor
+                b.authorName as bookAuthor,
+                b.coverUrl as bookCoverUrl
             FROM transactions t
             LEFT JOIN students s ON t.studentReg = s.Registration
             LEFT JOIN books b ON t.bookId = b.id
@@ -142,6 +143,7 @@ export class MySQLTransactionRepository implements IBorrowRepository {
                 borrowedDate: row.borrowedDate,
                 dueDate: row.dueDate,
                 returnDate: row.returnDate,
+                coverUrl: row.bookCoverUrl,
                 studentName: row.studentName,
                 studentRegistration: row.studentRegistration,
                 studentDepartment: row.studentDepartment,
