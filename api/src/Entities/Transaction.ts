@@ -10,6 +10,7 @@ export class Transaction {
     status: 'ISSUED' | 'RETURNED' | 'OVERDUE' | 'REQUESTED';
     lateFee?: number;
     studentName?: string;
+    studentEmail?: string;
     bookTitle?: string;
     bookAuthor?: string;
 

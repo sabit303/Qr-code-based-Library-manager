@@ -87,3 +87,12 @@ CREATE TABLE IF NOT EXISTS transactions (
   FOREIGN KEY (studentReg) REFERENCES students(Registration) ON DELETE CASCADE,
   FOREIGN KEY (bookId) REFERENCES books(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  transactionId INT NOT NULL,
+  type ENUM('due_reminder', 'overdue_reminder') NOT NULL,
+  sentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (transactionId) REFERENCES transactions(id) ON DELETE CASCADE,
+  UNIQUE KEY uk_transaction_type (transactionId, type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

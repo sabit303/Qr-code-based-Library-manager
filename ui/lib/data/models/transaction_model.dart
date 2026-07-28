@@ -10,6 +10,7 @@ class TransactionModel {
   final String? studentRegistration;
   final String? studentDepartment;
   final String? studentSession;
+  final String? bookCoverUrl;
   final String? bookTitle;
   final String? bookAuthor;
 
@@ -25,6 +26,7 @@ class TransactionModel {
     this.studentRegistration,
     this.studentDepartment,
     this.studentSession,
+    this.bookCoverUrl,
     this.bookTitle,
     this.bookAuthor,
   });
@@ -68,6 +70,7 @@ class TransactionModel {
       studentSession: json['studentSession'] ?? json['student_session'],
       bookTitle: json['bookTitle'] ?? json['book_title'] ?? json['title'],
       bookAuthor: json['bookAuthor'] ?? json['book_author'] ?? json['author'],
+      bookCoverUrl: json['bookCoverUrl'] ?? json['bookCover_url'] ?? json['coverUrl'],
     );
   }
 

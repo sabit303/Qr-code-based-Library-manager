@@ -28,6 +28,7 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
   bool _isLoading = true;
   static const int _itemsPerPage = 10;
   final Map<int, int> _currentPages = {0: 1, 1: 1, 2: 1}; // Page tracking for each tab
+  final Map<String, DateTime> _pendingDueDates = {}; // transactionId -> selected due date
 
   @override
   void initState() {
@@ -78,17 +79,16 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
   Future<void> _approveRequest(TransactionModel t) async {
     final user = context.read<AuthProvider>().user!;
     try {
-      // Honor the return date the student requested. Fall back to 30 days from
-      // now if, for some reason, no valid future date was provided.
+      final pendingDate = _pendingDueDates[t.id];
       final now = DateTime.now();
-      final returnDate = t.dueDate.isAfter(now)
-          ? t.dueDate
-          : now.add(const Duration(days: 30));
+      final returnDate = pendingDate ??
+          (t.dueDate.isAfter(now) ? t.dueDate : now.add(const Duration(days: 30)));
       await BorrowService(user.token).confirmBookRequest(
         bookId: t.bookId,
         studentReg: t.studentId,
         returnDate: returnDate,
       );
+      _pendingDueDates.remove(t.id);
       await _load();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -274,6 +274,7 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
   }
 
   Widget _buildCard(TransactionModel t, Color accent, int index, {bool isRequest = false}) {
+    final coverUrl = t.bookCoverUrl;
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
@@ -285,14 +286,7 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Container(
-              width: 48, height: 48,
-              decoration: BoxDecoration(
-                color: accent.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.book_rounded, color: accent, size: 24),
-            ),
+            _bookIcon(coverUrl, accent, index),
             const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -390,8 +384,55 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
                   style: GoogleFonts.inter(
                       fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white),
                 ),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: t.dueDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                      builder: (context, child) {
+                        return Theme(
+                          data: ThemeData.dark().copyWith(
+                            colorScheme: ColorScheme.dark(
+                              primary: AppColors.accent,
+                              onPrimary: Colors.white,
+                              surface: AppColors.bgCard,
+                              onSurface: AppColors.textPrimary,
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (picked != null && mounted) {
+                      setState(() {
+                        _pendingDueDates[t.id] = picked;
+                      });
+                    }
+                  },
+                  child: Icon(Icons.edit_rounded, size: 14, color: AppColors.accent),
+                ),
               ],
             ),
+            const SizedBox(height: 14),
+            if (_pendingDueDateLabel(t) != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.accent.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _pendingDueDateLabel(t)!,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             const SizedBox(height: 14),
             Row(
               children: [
@@ -441,5 +482,56 @@ class _LibrarianTransactionsTabState extends State<LibrarianTransactionsTab>
           fontSize: 13, fontWeight: FontWeight.w600,
           color: color ?? AppColors.textSecondary)),
     ]);
+  }
+
+  String? _pendingDueDateLabel(TransactionModel t) {
+    final pending = _pendingDueDates[t.id];
+    if (pending == null) return null;
+    return 'New return: ${DateFormat('EEE, MMM d, yyyy').format(pending)}';
+  }
+
+  static final _coverGradients = [
+    [const Color(0xFF1E3A8A), const Color(0xFF3B82F6)],
+    [const Color(0xFF0F172A), const Color(0xFF1E293B)],
+    [const Color(0xFF1D4ED8), const Color(0xFF60A5FA)],
+    [const Color(0xFF1E1B4B), const Color(0xFF4F46E5)],
+  ];
+
+  Widget _bookIcon(String? coverUrl, Color accent, int index) {
+    if (coverUrl != null && coverUrl.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          coverUrl,
+          fit: BoxFit.cover,
+          width: 48,
+          height: 48,
+          errorBuilder: (_, __, ___) => Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: _coverGradients[index % _coverGradients.length],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Center(
+              child: Icon(Icons.auto_stories_rounded, color: Colors.white, size: 20),
+            ),
+          ),
+        ),
+      );
+    }
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: accent.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(Icons.book_rounded, color: accent, size: 24),
+    );
   }
 }

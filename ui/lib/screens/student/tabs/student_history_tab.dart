@@ -193,15 +193,39 @@ class _StudentHistoryTabState extends State<StudentHistoryTab>
           children: [
             Row(
               children: [
-                Container(
+                      Container(
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
                     color: accentColor.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child:
-                      Icon(Icons.book_rounded, color: accentColor, size: 24),
+                  child: t.bookCoverUrl != null && t.bookCoverUrl!.isNotEmpty
+                       ? ClipRRect(
+                           borderRadius: BorderRadius.circular(12),
+                           child: Image.network(
+                             t.bookCoverUrl!,
+                             fit: BoxFit.cover,
+                             width: 48,
+                             height: 48,
+                             errorBuilder: (_, __, ___) => Container(
+                               width: 48,
+                               height: 48,
+                               decoration: BoxDecoration(
+                                 gradient: LinearGradient(
+                                   colors: _coverGradients[index % _coverGradients.length],
+                                   begin: Alignment.topLeft,
+                                   end: Alignment.bottomRight,
+                                 ),
+                                 borderRadius: BorderRadius.circular(12),
+                               ),
+                               child: const Center(
+                                 child: Icon(Icons.auto_stories_rounded, color: Colors.white, size: 20),
+                               ),
+                             ),
+                           ),
+                         )
+                       : Icon(Icons.book_rounded, color: accentColor, size: 24),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -295,4 +319,11 @@ class _StudentHistoryTabState extends State<StudentHistoryTab>
       ],
     );
   }
+
+  static final _coverGradients = [
+    [const Color(0xFF1E3A8A), const Color(0xFF3B82F6)],
+    [const Color(0xFF0F172A), const Color(0xFF1E293B)],
+    [const Color(0xFF1D4ED8), const Color(0xFF60A5FA)],
+    [const Color(0xFF1E1B4B), const Color(0xFF4F46E5)],
+  ];
 }

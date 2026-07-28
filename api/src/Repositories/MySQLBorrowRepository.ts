@@ -114,6 +114,7 @@ export class MySQLTransactionRepository implements IBorrowRepository {
                 s.Registration as studentRegistration,
                 s.Department as studentDepartment,
                 s.Session as studentSession,
+                s.Email as studentEmail,
                 b.name as bookTitle,
                 b.authorName as bookAuthor,
                 b.coverUrl as bookCoverUrl
@@ -148,6 +149,7 @@ export class MySQLTransactionRepository implements IBorrowRepository {
                 studentRegistration: row.studentRegistration,
                 studentDepartment: row.studentDepartment,
                 studentSession: row.studentSession,
+                studentEmail: row.studentEmail,
                 bookTitle: row.bookTitle,
                 bookAuthor: row.bookAuthor
             })) as Transaction[];
