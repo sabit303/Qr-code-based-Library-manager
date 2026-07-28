@@ -31,6 +31,7 @@ async function checkDueReminders(): Promise<void> {
 
                 await emailService.sendDueReminder(
                     txn.studentEmail,
+                    txn.studentName || "there",
                     txn.bookTitle || "a borrowed book",
                     dueDateStr
                 );
@@ -58,6 +59,7 @@ async function checkOverdueReminders(): Promise<void> {
 
                 await emailService.sendOverdueReminder(
                     txn.studentEmail,
+                    txn.studentName || "there",
                     txn.bookTitle || "a borrowed book",
                     dueDateStr
                 );
